@@ -1,24 +1,9 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { MailModule } from 'external/mail';
-import { OtpModule } from 'otp/otp.module';
-import { RoleModule } from 'role/role.module';
-import { UserModule } from 'user/user.module';
+import { IAMModule } from 'external/iam/iam.module';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { FacebookStrategy, GoogleStrategy, JwtStrategy } from './strategies';
 
 @Module({
-  imports: [
-    PassportModule,
-    JwtModule.register({}),
-    UserModule,
-    MailModule,
-    OtpModule,
-    RoleModule,
-  ],
+  imports: [IAMModule],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, FacebookStrategy, GoogleStrategy],
 })
 export class AuthModule {}

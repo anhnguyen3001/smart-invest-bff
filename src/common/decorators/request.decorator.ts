@@ -1,4 +1,9 @@
-import { applyDecorators, Type } from '@nestjs/common';
+import {
+  applyDecorators,
+  createParamDecorator,
+  ExecutionContext,
+  Type,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiExtraModels,
@@ -32,3 +37,10 @@ export const ApiUpsert = (CreateDto: Type, UpdateDto: Type) => {
     ApiExtraModels(CreateDto, UpdateDto),
   );
 };
+
+export const AuthorizationHeader = createParamDecorator(
+  (data: string | undefined, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.headers.authorization;
+  },
+);

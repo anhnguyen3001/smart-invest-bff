@@ -6,48 +6,44 @@ import {
   HttpStatus,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
-  ApiExtraModels,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { GetUser, GetUserId } from 'common/decorators/user.decorator';
 import { Public } from 'common/decorators/public.decorator';
+import { AuthorizationHeader } from 'common/decorators/request.decorator';
+import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import { RtGuard } from 'common/guards/rt.guard';
-import { BaseResponse } from 'common/types/api-response.type';
+import {
+  BaseResponse,
+  IAMApiResponseInterface,
+} from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
-import { User } from 'storage/entities/user.entity';
+import { IAMService } from 'external/iam/iam.service';
 import { UpdatePasswordDto } from 'user/user.dto';
-import { AuthService } from './auth.service';
 import {
   ForgetPasswordDto,
   LoginDto,
   LoginSocialDto,
+  OtpTokenResult,
   ResendOtpQueryDto,
   SignupDto,
   TokenResult,
   VerifyOtpQueryDto,
-  OtpTokenResult,
 } from './auth.dto';
-import { FBAuthGuard, GoogleAuthGuard } from './guards';
-import { Request } from 'express';
 
 @ApiTags('Auth')
 @Controller({
   path: 'auth',
   version: configService.getValue('API_VERSION'),
 })
-@ApiExtraModels(BaseResponse, OtpTokenResult, TokenResult)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly iamService: IAMService) {}
 
   @Public()
   @Post('login')
@@ -59,41 +55,52 @@ export class AuthController {
     description: 'Login successfully',
   })
   async login(@Body() loginDto: LoginDto): Promise<BaseResponse<TokenResult>> {
-    const tokens = await this.authService.login(loginDto);
-    return getBaseResponse<TokenResult>({ data: tokens }, TokenResult);
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/auth/login', loginDto)
+      .then((res) => res.data);
+    return getBaseResponse<TokenResult>(res, TokenResult);
   }
 
   @Public()
-  @UseGuards(FBAuthGuard)
   @Get('facebook')
-  @ApiQuery({ type: LoginSocialDto })
   @ApiOperation({
     summary: 'Login Facebook',
   })
   @ApiOkBaseResponse(TokenResult, {
     description: 'Login facebook successfully',
   })
-  async loginFB(@GetUser() user: User): Promise<TokenResult> {
-    return this.authService.loginSocial(user);
+  async loginFB(
+    @Query() query: LoginSocialDto,
+  ): Promise<BaseResponse<TokenResult>> {
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .get('/auth/facebook', { params: query })
+      .then((res) => res.data);
+
+    return getBaseResponse<TokenResult>(res, TokenResult);
   }
 
   @Public()
-  @UseGuards(GoogleAuthGuard)
   @Get('google')
-  @ApiQuery({ type: LoginSocialDto })
   @ApiOperation({
     summary: 'Login Google',
   })
   @ApiOkBaseResponse(TokenResult, {
     description: 'Login google successfully',
   })
-  async loginGoogle(@GetUser() user: User): Promise<TokenResult> {
-    return this.authService.loginSocial(user);
+  async loginGoogle(
+    @Query() query: LoginSocialDto,
+  ): Promise<BaseResponse<TokenResult>> {
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .get('/auth/google', { params: query })
+      .then((res) => res.data);
+    return getBaseResponse<TokenResult>(res, TokenResult);
   }
 
   @Get('logout')
-  async logout(@GetUserId() id: number): Promise<void> {
-    await this.authService.logout(id);
+  async logout(@AuthorizationHeader() authorization: string): Promise<void> {
+    await this.iamService.client.get('/auth/logout', {
+      headers: { authorization },
+    });
   }
 
   @Public()
@@ -105,7 +112,7 @@ export class AuthController {
     description: 'Sign up successfully',
   })
   async signup(@Body() dto: SignupDto): Promise<void> {
-    await this.authService.signup(dto);
+    await this.iamService.client.post('/auth/signup', dto);
   }
 
   @Public()
@@ -117,7 +124,7 @@ export class AuthController {
     description: 'Verify account successfully',
   })
   async verifyUser(@Query() query: VerifyOtpQueryDto): Promise<void> {
-    await this.authService.verifyUser(query);
+    await this.iamService.client.get('/auth/verify', { params: query });
   }
 
   @Public()
@@ -129,7 +136,7 @@ export class AuthController {
     description: 'Forget password successfully',
   })
   async forgetPassword(@Query() query: ForgetPasswordDto): Promise<void> {
-    await this.authService.forgetPassword(query);
+    await this.iamService.client.get('/auth/recover/init', { params: query });
   }
 
   @Public()
@@ -143,8 +150,10 @@ export class AuthController {
   async recoverCode(
     @Query() query: VerifyOtpQueryDto,
   ): Promise<BaseResponse<OtpTokenResult>> {
-    const token = await this.authService.verifyOtpResetPassword(query);
-    return getBaseResponse({ data: { token } }, OtpTokenResult);
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .get('/auth/recover/code', { params: query })
+      .then((res) => res.data);
+    return getBaseResponse<OtpTokenResult>(res, OtpTokenResult);
   }
 
   @Public()
@@ -155,11 +164,12 @@ export class AuthController {
   })
   @ApiOkResponse({ description: 'Reset password successfully' })
   async recoverPassword(
-    @Req() req: Request,
+    @AuthorizationHeader() authorization: string,
     @Body() dto: UpdatePasswordDto,
   ): Promise<void> {
-    const token = req.headers.authorization;
-    await this.authService.recoverPassword(dto, token);
+    await this.iamService.client.post('/auth/recover/password', dto, {
+      headers: { authorization },
+    });
   }
 
   @Public()
@@ -169,7 +179,9 @@ export class AuthController {
   })
   @ApiOkResponse({ description: 'Resend otp success' })
   async resendOtp(@Query() query: ResendOtpQueryDto): Promise<void> {
-    await this.authService.resendOtp(query);
+    await this.iamService.client.get('/auth/resend', {
+      params: query,
+    });
   }
 
   @UseGuards(RtGuard)
@@ -178,10 +190,12 @@ export class AuthController {
     description: 'Refresh token successfully',
   })
   async refreshToken(
-    @GetUserId() id: number,
-    @GetUser('refreshToken') refreshToken: string,
+    @AuthorizationHeader() authorization: string,
   ): Promise<BaseResponse<TokenResult>> {
-    const tokens = await this.authService.refreshToken(id, refreshToken);
-    return getBaseResponse({ data: tokens }, TokenResult);
+    const res: IAMApiResponseInterface = await this.iamService.client.get(
+      '/auth/refesh-token',
+      { headers: { authorization } },
+    );
+    return getBaseResponse(res, TokenResult);
   }
 }

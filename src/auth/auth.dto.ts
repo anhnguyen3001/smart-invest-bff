@@ -7,7 +7,6 @@ import {
   MinLength,
 } from 'class-validator';
 import { PATTERN_VALIDATION } from 'common/constants/validation';
-import { InvalidCredentialException } from './auth.exception';
 import { OtpTypeEnum } from 'storage/entities/otp.entity';
 import { PasswordNotMatchException } from 'user/user.exception';
 import { Expose } from 'class-transformer';
@@ -20,15 +19,6 @@ export class LoginDto {
   @ApiProperty({ type: 'string' })
   @IsString()
   password: string;
-
-  validate() {
-    if (
-      !PATTERN_VALIDATION.email.test(this.email) ||
-      !PATTERN_VALIDATION.password.test(this.password)
-    ) {
-      throw new InvalidCredentialException();
-    }
-  }
 }
 
 export class LoginSocialDto {
