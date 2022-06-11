@@ -11,8 +11,8 @@ async function bootstrap() {
 
   // Swagger
   const options = new DocumentBuilder()
-    .setTitle('Smart Invest Auth-BFF')
-    .setDescription('Smart Invest Auth-BFF API')
+    .setTitle('Smart Invest BFF')
+    .setDescription('Smart Invest BFF API')
     .setVersion('1.0.0')
     .addBearerAuth({
       type: 'http',
