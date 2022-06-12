@@ -5,31 +5,31 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiExtraModels,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiCode } from 'common/constants/apiCode';
-import { ApiUpsert } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { Identity, RequestParamId, UpsertQueryDto } from 'common/dto';
-import { transformDtoWithoutGlobalPipe } from 'common/pipe';
-import { BaseResponse } from 'common/types/api-response.type';
+import { Identity, RequestParamId } from 'common/dto';
+import {
+  BaseResponse,
+  IAMApiResponseInterface,
+} from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
+import { IAMService } from 'external/iam/iam.service';
 import {
   CreateRoleDto,
   SearchRoleDto,
   SearchRolesResponse,
   UpdateRoleDto,
 } from './role.dto';
-import { RoleService } from './role.service';
 
 @ApiBearerAuth()
 @ApiTags('Role')
@@ -37,9 +37,8 @@ import { RoleService } from './role.service';
   path: 'roles',
   version: configService.getValue('API_VERSION'),
 })
-@ApiExtraModels(BaseResponse, SearchRolesResponse, Identity)
 export class RoleController {
-  constructor(private readonly roleService: RoleService) {}
+  constructor(private readonly iamService: IAMService) {}
 
   @Get()
   @ApiOperation({
@@ -51,59 +50,45 @@ export class RoleController {
   async getListRoles(
     @Query() dto: SearchRoleDto,
   ): Promise<BaseResponse<SearchRolesResponse>> {
-    const data = await this.roleService.getListRoles(dto);
-    return getBaseResponse(
-      {
-        data,
-      },
-      SearchRolesResponse,
-    );
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .get('/roles', { params: dto })
+      .then((res) => res.data);
+    return getBaseResponse<SearchRolesResponse>(res, SearchRolesResponse);
   }
 
   @Post()
   @HttpCode(200)
   @ApiOperation({
-    summary: 'Upsert role',
+    summary: 'Create role',
   })
-  @ApiUpsert(CreateRoleDto, UpdateRoleDto)
   @ApiOkBaseResponse(Identity, {
-    description: 'Upsert role successfully',
+    description: 'Create role successfully',
   })
-  async upsertRole(
-    @Body() upsertDto: unknown,
-    @Query() upsertQueryDto: UpsertQueryDto,
+  async createRole(
+    @Body() data: CreateRoleDto,
   ): Promise<BaseResponse<Identity>> {
-    if (!!upsertQueryDto.id) {
-      // Update role
-      const dto = await transformDtoWithoutGlobalPipe(upsertDto, UpdateRoleDto);
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/roles', data)
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
+  }
 
-      const role = await this.roleService.updateRole(upsertQueryDto.id, dto);
-      return getBaseResponse(
-        {
-          data: {
-            id: role.id,
-          },
-          code: ApiCode[200].UPDATE_SUCCESS.code,
-          message: ApiCode[200].UPDATE_SUCCESS.description,
-        },
-        Identity,
-      );
-    }
-
-    // Create role
-    const dto = await transformDtoWithoutGlobalPipe(upsertDto, CreateRoleDto);
-
-    const role = await this.roleService.createRole(dto);
-    return getBaseResponse(
-      {
-        data: {
-          id: role.id,
-        },
-        code: ApiCode[201].CREATE_SUCCESS.code,
-        message: ApiCode[201].CREATE_SUCCESS.description,
-      },
-      Identity,
-    );
+  @Patch('/:id')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Update role',
+  })
+  @ApiOkBaseResponse(Identity, {
+    description: 'Update role successfully',
+  })
+  async updateRole(
+    @Body() dto: UpdateRoleDto,
+    @Param() params: RequestParamId,
+  ): Promise<BaseResponse<Identity>> {
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/roles', dto, { params: { id: params.id } })
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
   }
 
   @Delete('/:id')
@@ -116,6 +101,6 @@ export class RoleController {
     description: 'Delete role successfully',
   })
   async deleteRole(@Param() params: RequestParamId): Promise<void> {
-    await this.roleService.deleteRole(params.id);
+    await this.iamService.client.delete(`/roles/${params.id}`);
   }
 }

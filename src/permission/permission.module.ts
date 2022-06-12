@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
-import { StorageModule } from 'storage/storage.module';
+import { IAMModule } from 'external/iam/iam.module';
 import { PermissionController } from './permission.controller';
-import { PermissionService } from './permission.service';
 
 @Module({
-  imports: [StorageModule.getMySQLModule()],
+  imports: [IAMModule],
   controllers: [PermissionController],
-  providers: [PermissionService],
-  exports: [PermissionService],
 })
 export class PermissionModule {}

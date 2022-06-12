@@ -5,31 +5,31 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiExtraModels,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiCode } from 'common/constants/apiCode';
-import { ApiUpsert } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { Identity, RequestParamId, UpsertQueryDto } from 'common/dto';
-import { transformDtoWithoutGlobalPipe } from 'common/pipe';
-import { BaseResponse } from 'common/types/api-response.type';
+import { Identity, RequestParamId } from 'common/dto';
+import {
+  BaseResponse,
+  IAMApiResponseInterface,
+} from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
+import { IAMService } from 'external/iam/iam.service';
 import {
   CreatePermissionDto,
   SearchPermissionDto,
   SearchPermissionsResponse,
   UpdatePermissionDto,
 } from './permission.dto';
-import { PermissionService } from './permission.service';
 
 @ApiBearerAuth()
 @ApiTags('Permission')
@@ -37,9 +37,8 @@ import { PermissionService } from './permission.service';
   path: 'permissions',
   version: configService.getValue('API_VERSION'),
 })
-@ApiExtraModels(BaseResponse, SearchPermissionsResponse, Identity)
 export class PermissionController {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(private readonly iamService: IAMService) {}
 
   @Get()
   @ApiOperation({
@@ -51,11 +50,11 @@ export class PermissionController {
   async getListRoles(
     @Query() dto: SearchPermissionDto,
   ): Promise<BaseResponse<SearchPermissionsResponse>> {
-    const data = await this.permissionService.getListPermissions(dto);
-    return getBaseResponse(
-      {
-        data,
-      },
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .get('/permissions', { params: dto })
+      .then((res) => res.data);
+    return getBaseResponse<SearchPermissionsResponse>(
+      res,
       SearchPermissionsResponse,
     );
   }
@@ -63,56 +62,36 @@ export class PermissionController {
   @Post()
   @HttpCode(200)
   @ApiOperation({
-    summary: 'Upsert permission',
+    summary: 'Create permission',
   })
-  @ApiUpsert(CreatePermissionDto, UpdatePermissionDto)
   @ApiOkBaseResponse(Identity, {
-    description: 'Upsert permission successfully',
+    description: 'Create permission successfully',
   })
-  async upsertPermission(
-    @Body() upsertDto: unknown,
-    @Query() upsertQueryDto: UpsertQueryDto,
+  async createPermission(
+    @Body() dto: CreatePermissionDto,
   ): Promise<BaseResponse<Identity>> {
-    if (!!upsertQueryDto.id) {
-      // Update role
-      const dto = await transformDtoWithoutGlobalPipe(
-        upsertDto,
-        UpdatePermissionDto,
-      );
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/permissions', dto)
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
+  }
 
-      const permission = await this.permissionService.updatePermission(
-        upsertQueryDto.id,
-        dto,
-      );
-      return getBaseResponse(
-        {
-          data: {
-            id: permission.id,
-          },
-          code: ApiCode[200].UPDATE_SUCCESS.code,
-          message: ApiCode[200].UPDATE_SUCCESS.description,
-        },
-        Identity,
-      );
-    }
-
-    // Create permission
-    const dto = await transformDtoWithoutGlobalPipe(
-      upsertDto,
-      CreatePermissionDto,
-    );
-
-    const permission = await this.permissionService.createPermission(dto);
-    return getBaseResponse(
-      {
-        data: {
-          id: permission.id,
-        },
-        code: ApiCode[201].CREATE_SUCCESS.code,
-        message: ApiCode[201].CREATE_SUCCESS.description,
-      },
-      Identity,
-    );
+  @Patch('/:id')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Update permission',
+  })
+  @ApiOkBaseResponse(Identity, {
+    description: 'Update permission successfully',
+  })
+  async updatePermission(
+    @Body() dto: UpdatePermissionDto,
+    @Param() params: RequestParamId,
+  ): Promise<BaseResponse<Identity>> {
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/permissions', dto, { params: { id: params.id } })
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
   }
 
   @Delete('/:id')
@@ -125,6 +104,6 @@ export class PermissionController {
     description: 'Delete permission successfully',
   })
   async deletePermission(@Param() params: RequestParamId): Promise<void> {
-    await this.permissionService.deletePermission(params.id);
+    await this.iamService.client.delete(`/permissions/${params.id}`);
   }
 }
