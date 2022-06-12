@@ -1,13 +1,9 @@
 import { Module } from '@nestjs/common';
-import { PermissionModule } from 'permission/permission.module';
-import { StorageModule } from 'storage/storage.module';
+import { IAMModule } from 'external/iam/iam.module';
 import { RouteController } from './route.controller';
-import { RouteService } from './route.service';
 
 @Module({
-  imports: [StorageModule.getMySQLModule(), PermissionModule],
+  imports: [IAMModule],
   controllers: [RouteController],
-  providers: [RouteService],
-  exports: [RouteService],
 })
 export class RouteModule {}

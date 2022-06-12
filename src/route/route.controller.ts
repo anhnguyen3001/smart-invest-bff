@@ -5,31 +5,31 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiExtraModels,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiCode } from 'common/constants/apiCode';
-import { ApiUpsert } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { Identity, RequestParamId, UpsertQueryDto } from 'common/dto';
-import { transformDtoWithoutGlobalPipe } from 'common/pipe';
-import { BaseResponse } from 'common/types/api-response.type';
+import { Identity, RequestParamId } from 'common/dto';
+import {
+  BaseResponse,
+  IAMApiResponseInterface,
+} from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
+import { IAMService } from 'external/iam/iam.service';
 import {
   CreateRouteDto,
   SearchRouteDto,
   SearchRoutesResponse,
   UpdateRouteDto,
 } from './route.dto';
-import { RouteService } from './route.service';
 
 @ApiBearerAuth()
 @ApiTags('Route')
@@ -37,9 +37,8 @@ import { RouteService } from './route.service';
   path: 'routes',
   version: configService.getValue('API_VERSION'),
 })
-@ApiExtraModels(BaseResponse, SearchRoutesResponse, Identity)
 export class RouteController {
-  constructor(private readonly routeService: RouteService) {}
+  constructor(private readonly iamService: IAMService) {}
 
   @Get()
   @ApiOperation({
@@ -51,62 +50,45 @@ export class RouteController {
   async getListRoutes(
     @Query() dto: SearchRouteDto,
   ): Promise<BaseResponse<SearchRoutesResponse>> {
-    const data = await this.routeService.getListRoutes(dto);
-    return getBaseResponse(
-      {
-        data,
-      },
-      SearchRoutesResponse,
-    );
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .get('/routes', { params: dto })
+      .then((res) => res.data);
+    return getBaseResponse<SearchRoutesResponse>(res, SearchRoutesResponse);
   }
 
   @Post()
   @HttpCode(200)
   @ApiOperation({
-    summary: 'Upsert route',
+    summary: 'Create route',
   })
-  @ApiUpsert(CreateRouteDto, UpdateRouteDto)
   @ApiOkBaseResponse(Identity, {
-    description: 'Upsert route successfully',
+    description: 'Create route successfully',
   })
-  async upsertRoute(
-    @Body() upsertDto: unknown,
-    @Query() upsertQueryDto: UpsertQueryDto,
+  async createRoute(
+    @Body() dto: CreateRouteDto,
   ): Promise<BaseResponse<Identity>> {
-    if (!!upsertQueryDto.id) {
-      // Update role
-      const dto = await transformDtoWithoutGlobalPipe(
-        upsertDto,
-        UpdateRouteDto,
-      );
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/routes', dto)
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
+  }
 
-      const role = await this.routeService.updateRoute(upsertQueryDto.id, dto);
-      return getBaseResponse(
-        {
-          data: {
-            id: role.id,
-          },
-          code: ApiCode[200].UPDATE_SUCCESS.code,
-          message: ApiCode[200].UPDATE_SUCCESS.description,
-        },
-        Identity,
-      );
-    }
-
-    // Create role
-    const dto = await transformDtoWithoutGlobalPipe(upsertDto, CreateRouteDto);
-
-    const role = await this.routeService.createRoute(dto);
-    return getBaseResponse(
-      {
-        data: {
-          id: role.id,
-        },
-        code: ApiCode[201].CREATE_SUCCESS.code,
-        message: ApiCode[201].CREATE_SUCCESS.description,
-      },
-      Identity,
-    );
+  @Patch('/:id')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Update route',
+  })
+  @ApiOkBaseResponse(Identity, {
+    description: 'Update route successfully',
+  })
+  async updateRoute(
+    @Body() dto: UpdateRouteDto,
+    @Param() params: RequestParamId,
+  ): Promise<BaseResponse<Identity>> {
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/routes', dto, { params: { id: params.id } })
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
   }
 
   @Delete('/:id')
@@ -119,6 +101,6 @@ export class RouteController {
     description: 'Delete route successfully',
   })
   async deleteRoute(@Param() params: RequestParamId): Promise<void> {
-    await this.routeService.deleteRoute(params.id);
+    await this.iamService.client.delete(`/routes/${params.id}`);
   }
 }
