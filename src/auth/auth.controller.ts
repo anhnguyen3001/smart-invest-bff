@@ -15,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Public } from 'common/decorators/public.decorator';
-import { AuthorizationHeader } from 'common/decorators/request.decorator';
+import { Authorization } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import { RtGuard } from 'common/guards/rt.guard';
 import {
@@ -97,7 +97,7 @@ export class AuthController {
   }
 
   @Get('logout')
-  async logout(@AuthorizationHeader() authorization: string): Promise<void> {
+  async logout(@Authorization() authorization: string): Promise<void> {
     await this.iamService.client.get('/auth/logout', {
       headers: { authorization },
     });
@@ -164,7 +164,7 @@ export class AuthController {
   })
   @ApiOkResponse({ description: 'Reset password successfully' })
   async recoverPassword(
-    @AuthorizationHeader() authorization: string,
+    @Authorization() authorization: string,
     @Body() dto: UpdatePasswordDto,
   ): Promise<void> {
     await this.iamService.client.post('/auth/recover/password', dto, {
@@ -190,7 +190,7 @@ export class AuthController {
     description: 'Refresh token successfully',
   })
   async refreshToken(
-    @AuthorizationHeader() authorization: string,
+    @Authorization() authorization: string,
   ): Promise<BaseResponse<TokenResult>> {
     const res: IAMApiResponseInterface = await this.iamService.client.get(
       '/auth/refesh-token',
