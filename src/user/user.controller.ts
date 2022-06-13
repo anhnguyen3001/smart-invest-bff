@@ -12,21 +12,22 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiExtraModels,
   ApiNoContentResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiCode } from 'common/constants/apiCode';
-import { ApiUpsert } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { GetUserId } from 'common/decorators/user.decorator';
-import { Identity, RequestParamId, UpsertQueryDto } from 'common/dto';
-import { transformDtoWithoutGlobalPipe } from 'common/pipe';
-import { BaseResponse } from 'common/types/api-response.type';
+import { GetUser, GetUserId } from 'common/decorators/user.decorator';
+import { Identity, RequestParamId } from 'common/dto';
+import {
+  BaseResponse,
+  IAMApiResponseInterface,
+} from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
+import { IAMService } from 'external/iam/iam.service';
+import { User } from 'storage/entities/user.entity';
 import {
   ChangePasswordDto,
   CreateUserDto,
@@ -36,7 +37,6 @@ import {
   UpdateUserDto,
   UserResponseDto,
 } from './user.dto';
-import { UserService } from './user.service';
 
 @ApiBearerAuth()
 @ApiTags('User')
@@ -44,9 +44,8 @@ import { UserService } from './user.service';
   path: 'users',
   version: configService.getValue('API_VERSION'),
 })
-@ApiExtraModels(BaseResponse, UserResponseDto)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly iamService: IAMService) {}
 
   @Get()
   @ApiOperation({
@@ -58,59 +57,45 @@ export class UserController {
   async getListRoutes(
     @Query() dto: SearchUserDto,
   ): Promise<BaseResponse<SearchUsersResponse>> {
-    const data = await this.userService.getListUsers(dto);
-    return getBaseResponse(
-      {
-        data,
-      },
-      SearchUsersResponse,
-    );
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .get('/users', { params: dto })
+      .then((res) => res.data);
+    return getBaseResponse<SearchUsersResponse>(res, SearchUsersResponse);
   }
 
   @Post()
   @HttpCode(200)
   @ApiOperation({
-    summary: 'Upsert user',
+    summary: 'Create user',
   })
-  @ApiUpsert(CreateUserDto, UpdateUserDto)
   @ApiOkBaseResponse(Identity, {
-    description: 'Upsert user successfully',
+    description: 'Create user successfully',
   })
-  async upsertUser(
-    @Body() upsertDto: unknown,
-    @Query() upsertQueryDto: UpsertQueryDto,
+  async createUser(
+    @Body() dto: CreateUserDto,
   ): Promise<BaseResponse<Identity>> {
-    if (upsertQueryDto.id) {
-      // Update user
-      const dto = await transformDtoWithoutGlobalPipe(upsertDto, UpdateUserDto);
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/users', dto)
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
+  }
 
-      const user = await this.userService.updateUser(upsertQueryDto.id, dto);
-      return getBaseResponse(
-        {
-          data: {
-            id: user.id,
-          },
-          code: ApiCode[200].UPDATE_SUCCESS.code,
-          message: ApiCode[200].UPDATE_SUCCESS.description,
-        },
-        Identity,
-      );
-    }
-
-    // Create user
-    const dto = await transformDtoWithoutGlobalPipe(upsertDto, CreateUserDto);
-
-    const user = await this.userService.createUser(dto);
-    return getBaseResponse(
-      {
-        data: {
-          id: user.id,
-        },
-        code: ApiCode[201].CREATE_SUCCESS.code,
-        message: ApiCode[201].CREATE_SUCCESS.description,
-      },
-      Identity,
-    );
+  @Patch('/:id')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Update user',
+  })
+  @ApiOkBaseResponse(Identity, {
+    description: 'Update user successfully',
+  })
+  async updateUser(
+    @Body() data: UpdateUserDto,
+    @Param() params: RequestParamId,
+  ): Promise<BaseResponse<Identity>> {
+    const res: IAMApiResponseInterface = await this.iamService.client
+      .post('/permissions', data, { params: { id: params.id } })
+      .then((res) => res.data);
+    return getBaseResponse<Identity>(res, Identity);
   }
 
   @Delete('/:id')
@@ -123,10 +108,9 @@ export class UserController {
     description: 'Delete user successfully',
   })
   async deleteRoute(@Param() params: RequestParamId): Promise<void> {
-    await this.userService.deleteUser(params.id);
+    await this.iamService.client.delete(`/users/${params.id}`);
   }
 
-  // TODO: BFF
   @Get('me')
   @ApiOperation({
     summary: 'Get user info',
@@ -135,9 +119,8 @@ export class UserController {
     description: 'Get user info successfully',
   })
   async getUserInfo(
-    @GetUserId() id: number,
+    @GetUser() user: User,
   ): Promise<BaseResponse<UserResponseDto>> {
-    const user = await this.userService.findOneById(id);
     return getBaseResponse(
       {
         data: { user },
@@ -155,9 +138,9 @@ export class UserController {
   })
   async updateProfile(
     @GetUserId() id: number,
-    @Body() dto: UpdateProfileDto,
+    @Body() data: UpdateProfileDto,
   ): Promise<void> {
-    await this.userService.updateUser(id, dto);
+    await this.iamService.client.post('/users', data, { params: { id } });
   }
 
   @Post('change-password')
@@ -168,8 +151,8 @@ export class UserController {
   @ApiNoContentResponse({ description: 'Change password successfully' })
   async changePassword(
     @GetUserId() id: number,
-    @Body() dto: ChangePasswordDto,
+    @Body() data: ChangePasswordDto,
   ): Promise<void> {
-    await this.userService.changePassword(id, dto);
+    await this.iamService.client.post('/users', data, { params: { id } });
   }
 }
