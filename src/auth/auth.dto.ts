@@ -1,13 +1,6 @@
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { PATTERN_VALIDATION } from 'common/constants/validation';
-import { OtpTypeEnum } from 'storage/entities/otp.entity';
 import { Expose } from 'class-transformer';
 
 export class LoginDto {
@@ -83,10 +76,6 @@ export class OtpTokenResult {
 }
 
 export class ResendOtpQueryDto {
-  @ApiProperty({ type: OtpTypeEnum })
-  @IsEnum(OtpTypeEnum)
-  type: OtpTypeEnum;
-
   @ApiProperty({ type: 'string' })
   @Matches(PATTERN_VALIDATION.email)
   @IsString()

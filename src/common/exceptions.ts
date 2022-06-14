@@ -1,7 +1,13 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { ApiCode, EntityEnum } from './constants/apiCode';
-import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { Response } from 'express';
+import { ApiCode } from './constants/apiCode';
 
 export class APIException extends HttpException {
   code: string | number;
@@ -56,36 +62,6 @@ export class ExternalAPIException extends APIException {
       HttpStatus.FAILED_DEPENDENCY,
       message,
       details,
-    );
-  }
-}
-
-export class MissingFieldHeaderException extends APIException {
-  constructor(message = ApiCode[400].MISSING_FIELD_HEADER.description) {
-    super(
-      ApiCode[400].MISSING_FIELD_HEADER.code,
-      HttpStatus.BAD_REQUEST,
-      message,
-    );
-  }
-}
-
-export class NotFoundException extends APIException {
-  constructor(field: EntityEnum) {
-    super(
-      ApiCode[404].NOT_FOUND.code,
-      HttpStatus.NOT_FOUND,
-      `${field} ${ApiCode[404].NOT_FOUND.code}`,
-    );
-  }
-}
-
-export class ExistedException extends APIException {
-  constructor(field: EntityEnum) {
-    super(
-      ApiCode[400].EXISTED_ENTITY.code,
-      HttpStatus.BAD_REQUEST,
-      `${field} ${ApiCode[400].EXISTED_ENTITY.code}`,
     );
   }
 }

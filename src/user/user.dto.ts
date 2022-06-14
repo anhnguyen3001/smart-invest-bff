@@ -21,8 +21,45 @@ import {
 } from 'class-validator';
 import { PATTERN_VALIDATION } from 'common/constants/validation';
 import { BASE_SORT_BY, QueryCoreDto, ResponseWithPagination } from 'common/dto';
-import { LoginMethodEnum, User } from 'storage/entities/user.entity';
 import { PasswordNotMatchException } from './user.exception';
+
+enum LoginMethodEnum {
+  local = 'local',
+  facebook = 'facebook',
+  google = 'google',
+}
+
+export class UserDto {
+  @Expose()
+  @ApiProperty({
+    type: 'number',
+  })
+  id: number;
+
+  @Expose()
+  @ApiProperty({
+    type: 'string',
+  })
+  email: string;
+
+  @Expose()
+  @ApiProperty({
+    type: 'string',
+  })
+  username: string;
+
+  @Expose()
+  @ApiProperty({
+    type: 'string',
+  })
+  avatar?: string;
+
+  @Expose()
+  @ApiProperty({
+    enum: LoginMethodEnum,
+  })
+  method?: LoginMethodEnum;
+}
 
 export class UpdatePasswordDto {
   @ApiProperty({ type: 'string' })
@@ -64,9 +101,9 @@ export class UpdateProfileDto {
 
 export class UserResponseDto {
   @Expose()
-  @ApiResponseProperty({ type: User })
-  @Type(() => User)
-  user: User;
+  @ApiResponseProperty({ type: UserDto })
+  @Type(() => UserDto)
+  user: UserDto;
 }
 
 const USER_SORT_BY = BASE_SORT_BY;
@@ -90,9 +127,9 @@ export class SearchUserDto extends QueryCoreDto {
 
 export class SearchUsersResponse extends ResponseWithPagination {
   @Expose()
-  @ApiResponseProperty({ type: [User] })
-  @Type(() => User)
-  users: User[];
+  @ApiResponseProperty({ type: [UserDto] })
+  @Type(() => UserDto)
+  users: UserDto[];
 }
 
 export class CreateUserDto {

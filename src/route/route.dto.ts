@@ -10,7 +10,27 @@ import {
   MinLength,
 } from 'class-validator';
 import { BASE_SORT_BY, QueryCoreDto, ResponseWithPagination } from 'common/dto';
-import { MethodEnum, Route } from 'storage/entities/route.entity';
+
+enum MethodEnum {
+  get = 'GET',
+  post = 'POST',
+  put = 'PUT',
+  delete = 'DELETE',
+}
+
+export class RouteDto {
+  @Expose()
+  @ApiProperty({ type: 'number' })
+  id: number;
+
+  @Expose()
+  @ApiProperty({ type: 'string' })
+  route: string;
+
+  @Expose()
+  @ApiProperty({ enum: MethodEnum })
+  method: MethodEnum;
+}
 
 const ROUTE_SORT_BY = BASE_SORT_BY;
 export class SearchRouteDto extends QueryCoreDto {
@@ -22,9 +42,9 @@ export class SearchRouteDto extends QueryCoreDto {
 
 export class SearchRoutesResponse extends ResponseWithPagination {
   @Expose()
-  @ApiResponseProperty({ type: [Route] })
-  @Type(() => Route)
-  routes: Route[];
+  @ApiResponseProperty({ type: [RouteDto] })
+  @Type(() => RouteDto)
+  routes: RouteDto[];
 }
 
 export class CreateRouteDto {

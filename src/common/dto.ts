@@ -3,7 +3,6 @@ import { Expose, Type } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
-  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -55,14 +54,6 @@ export class QueryCoreDto {
   @IsEnum(ORDER_BY)
   @IsOptional()
   orderBy?: ORDER_BY = ORDER_BY.DESC;
-}
-
-export class UpsertQueryDto {
-  @ApiProperty({ type: 'number', required: false })
-  @IsNumber()
-  @Type(() => Number)
-  @IsOptional()
-  id?: number;
 }
 
 export class Pagination {

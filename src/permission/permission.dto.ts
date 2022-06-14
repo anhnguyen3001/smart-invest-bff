@@ -13,7 +13,26 @@ import {
   MinLength,
 } from 'class-validator';
 import { BASE_SORT_BY, QueryCoreDto, ResponseWithPagination } from 'common/dto';
-import { Permission } from 'storage/entities/permission.entity';
+
+export class PermissionDto {
+  @Expose()
+  @ApiProperty({
+    type: 'number',
+  })
+  id: number;
+
+  @Expose()
+  @ApiProperty({
+    type: 'string',
+  })
+  name: string;
+
+  @Expose()
+  @ApiProperty({
+    type: 'string',
+  })
+  code: string;
+}
 
 const PERMISSION_SORT_BY = BASE_SORT_BY;
 export class SearchPermissionDto extends QueryCoreDto {
@@ -25,9 +44,9 @@ export class SearchPermissionDto extends QueryCoreDto {
 
 export class SearchPermissionsResponse extends ResponseWithPagination {
   @Expose()
-  @ApiResponseProperty({ type: [Permission] })
-  @Type(() => Permission)
-  permissions: Permission[];
+  @ApiResponseProperty({ type: [PermissionDto] })
+  @Type(() => PermissionDto)
+  permissions: PermissionDto[];
 }
 
 export class CreatePermissionDto {

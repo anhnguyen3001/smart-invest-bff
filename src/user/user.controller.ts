@@ -17,8 +17,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { GetUser, GetUserId } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { GetUser, GetUserId } from 'common/decorators/user.decorator';
 import { Identity, RequestParamId } from 'common/dto';
 import {
   BaseResponse,
@@ -27,7 +27,6 @@ import {
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { IAMService } from 'external/iam/iam.service';
-import { User } from 'storage/entities/user.entity';
 import {
   ChangePasswordDto,
   CreateUserDto,
@@ -35,6 +34,7 @@ import {
   SearchUsersResponse,
   UpdateProfileDto,
   UpdateUserDto,
+  UserDto,
   UserResponseDto,
 } from './user.dto';
 
@@ -119,7 +119,7 @@ export class UserController {
     description: 'Get user info successfully',
   })
   async getUserInfo(
-    @GetUser() user: User,
+    @GetUser() user: UserDto,
   ): Promise<BaseResponse<UserResponseDto>> {
     return getBaseResponse(
       {

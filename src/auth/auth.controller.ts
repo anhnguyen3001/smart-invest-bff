@@ -13,8 +13,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from 'common/decorators/public.decorator';
-import { Authorization } from 'common/decorators/request.decorator';
+import { Public, Authorization } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import {
   BaseResponse,
@@ -171,14 +170,29 @@ export class AuthController {
   }
 
   @Public()
-  @Get('resend')
+  @Get('resend/reset-password')
   @ApiOperation({
-    summary: 'Resend OTP',
+    summary: 'Resend OTP for reseting password',
   })
   @ApiOkResponse({ description: 'Resend otp success' })
   async resendOtp(@Query() query: ResendOtpQueryDto): Promise<void> {
     await this.iamService.client.get('/auth/resend', {
-      params: query,
+      params: { ...query, type: 'resetPassword' },
+    });
+  }
+
+  @Public()
+  @Get('resend/verify')
+  @ApiOperation({
+    summary: 'Resend OTP for verify user',
+  })
+  @ApiOkResponse({ description: 'Resend otp success' })
+  async resendVerifiedOtp(@Query() query: ResendOtpQueryDto): Promise<void> {
+    await this.iamService.client.get('/auth/resend', {
+      params: {
+        ...query,
+        type: 'verifyUser',
+      },
     });
   }
 

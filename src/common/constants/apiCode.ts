@@ -11,21 +11,6 @@ export const ApiCode = {
       code: '000',
       description: 'API has no specific code for this case',
     },
-    SUCCESS: {
-      code: '001',
-      description: 'Success',
-    },
-    UPDATE_SUCCESS: {
-      code: '002',
-      description: 'Update successfully!',
-    },
-  },
-
-  [HttpStatus.CREATED]: {
-    CREATE_SUCCESS: {
-      code: '000',
-      description: 'Create successfully!',
-    },
   },
 
   [HttpStatus.BAD_REQUEST]: {
