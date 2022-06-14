@@ -1,40 +1,34 @@
-import { ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
-import { STRATEGY } from 'common/constants/strategy-name';
 import { Request } from 'express';
-import { RouteService } from 'route/route.service';
+import { IAMService } from 'external/iam/iam.service';
+import { AccessDeniedException } from '../../auth/auth.exception';
 
 @Injectable()
-export class AppGuard extends AuthGuard(STRATEGY.at) {
+export class AppGuard implements CanActivate {
   constructor(
-    @Inject(RouteService) private routeService: RouteService,
-    private reflector: Reflector,
-  ) {
-    super(reflector);
-  }
+    private readonly iamService: IAMService,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
+    if (isPublic) return true;
 
     const request: Request = context.switchToHttp().getRequest();
 
-    if (isPublic) return true;
-
-    const isAuthen = await super.canActivate(context);
-    if (!isAuthen) {
-      return false;
+    const { authorization } = request.headers;
+    const user = await this.iamService.client.get('/me', {
+      headers: { authorization },
+    });
+    if (!user) {
+      throw new AccessDeniedException();
     }
 
-    // Check if route requires permission
-    await this.routeService.checkRoutePermission(
-      (request.user as any)?.id,
-      request.path,
-      request.method,
-    );
+    request.user = user;
     return true;
   }
 }

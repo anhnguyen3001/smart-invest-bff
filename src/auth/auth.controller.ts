@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -17,7 +16,6 @@ import {
 import { Public } from 'common/decorators/public.decorator';
 import { Authorization } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { RtGuard } from 'common/guards/rt.guard';
 import {
   BaseResponse,
   IAMApiResponseInterface,
@@ -184,7 +182,6 @@ export class AuthController {
     });
   }
 
-  @UseGuards(RtGuard)
   @Get('refresh-token')
   @ApiOkBaseResponse(TokenResult, {
     description: 'Refresh token successfully',

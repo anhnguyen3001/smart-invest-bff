@@ -8,7 +8,6 @@ import {
 } from 'class-validator';
 import { PATTERN_VALIDATION } from 'common/constants/validation';
 import { OtpTypeEnum } from 'storage/entities/otp.entity';
-import { PasswordNotMatchException } from 'user/user.exception';
 import { Expose } from 'class-transformer';
 
 export class LoginDto {
@@ -57,12 +56,6 @@ export class SignupDto {
   @MinLength(1)
   @IsString()
   username: string;
-
-  validate() {
-    if (this.password !== this.confirmPassword) {
-      throw new PasswordNotMatchException();
-    }
-  }
 }
 
 export class ForgetPasswordDto {
