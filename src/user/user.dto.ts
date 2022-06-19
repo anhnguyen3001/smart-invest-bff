@@ -1,12 +1,6 @@
-import {
-  ApiProperty,
-  ApiResponseProperty,
-  PartialType,
-  PickType,
-} from '@nestjs/swagger';
+import { ApiProperty, ApiResponseProperty, PickType } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
-  IsArray,
   IsBoolean,
   IsEnum,
   IsIn,
@@ -53,6 +47,12 @@ export class UserDto {
     type: 'string',
   })
   avatar?: string;
+
+  @Expose()
+  @ApiProperty({
+    type: 'boolean',
+  })
+  isVerified?: boolean;
 
   @Expose()
   @ApiProperty({
@@ -118,11 +118,10 @@ export class SearchUserDto extends QueryCoreDto {
   @IsOptional()
   method?: string;
 
-  @ApiProperty({ type: [Number], required: false })
-  @IsNumber({}, { each: true })
-  @IsArray()
+  @ApiProperty({ type: 'boolean', required: false })
+  @IsBoolean()
   @IsOptional()
-  userIds?: number[];
+  isVerified?: boolean;
 }
 
 export class SearchUsersResponse extends ResponseWithPagination {
@@ -160,13 +159,11 @@ export class CreateUserDto {
   method?: LoginMethodEnum;
 }
 
-export class UpdateUserDto extends PartialType(
-  PickType(CreateUserDto, ['username', 'password']),
-) {
-  @ApiProperty({ type: 'string', required: false })
-  @IsString()
+export class UpdateUserDto extends PickType(CreateUserDto, ['password']) {
+  @ApiProperty({ type: 'boolean', required: false })
+  @IsBoolean()
   @IsOptional()
-  avatar?: string;
+  isVerified?: boolean;
 
   @ApiProperty({ type: 'number', required: false })
   @IsNumber()

@@ -54,7 +54,7 @@ export class UserController {
   @ApiOkBaseResponse(SearchUsersResponse, {
     description: 'Get users by queries successfully',
   })
-  async getListRoutes(
+  async getListUsers(
     @Query() dto: SearchUserDto,
   ): Promise<BaseResponse<SearchUsersResponse>> {
     const res: IAMApiResponseInterface = await this.iamService.client
