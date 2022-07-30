@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
 import { IAMService } from 'external/iam/iam.service';
 import { AccessDeniedException } from '../../auth/auth.exception';
 
@@ -18,7 +17,7 @@ export class AppGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
-    const request: Request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest();
 
     const { authorization } = request.headers;
     const user = await this.iamService.client.get('/me', {
