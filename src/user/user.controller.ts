@@ -40,7 +40,7 @@ import {
 export class UserController {
   constructor(private readonly iamService: IAMService) {}
 
-  @Get()
+  // @Get()
   @ApiOperation({
     summary: 'Get users by queries',
   })
