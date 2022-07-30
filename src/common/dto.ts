@@ -69,3 +69,13 @@ export class ResponseWithPagination {
   @ApiProperty({ type: Pagination })
   pagination: Pagination;
 }
+
+export class BaseEntityDto {
+  @Expose()
+  @ApiProperty({ type: 'string' })
+  createdAt: string;
+
+  @Expose()
+  @ApiProperty({ type: 'string' })
+  updatedAt: string;
+}

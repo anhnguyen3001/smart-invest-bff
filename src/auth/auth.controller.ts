@@ -13,25 +13,25 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public, Authorization } from 'common/decorators/request.decorator';
+import { Public } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import {
   BaseResponse,
   IAMApiResponseInterface,
 } from 'common/types/api-response.type';
+import { OtpTypeEnum } from 'common/types/entity.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { IAMService } from 'external/iam/iam.service';
-import { UpdatePasswordDto } from 'user/user.dto';
 import {
   ForgetPasswordDto,
   LoginDto,
   LoginSocialDto,
-  OtpTokenResult,
   ResendOtpQueryDto,
+  ResetPasswordDto,
   SignupDto,
   TokenResult,
-  VerifyOtpQueryDto,
+  VerifyOtpDto,
 } from './auth.dto';
 
 @ApiTags('Auth')
@@ -93,13 +93,6 @@ export class AuthController {
     return getBaseResponse<TokenResult>(res, TokenResult);
   }
 
-  @Get('logout')
-  async logout(@Authorization() authorization: string): Promise<void> {
-    await this.iamService.client.get('/auth/logout', {
-      headers: { authorization },
-    });
-  }
-
   @Public()
   @Post('signup')
   @ApiOperation({
@@ -120,7 +113,7 @@ export class AuthController {
   @ApiOkResponse({
     description: 'Verify account successfully',
   })
-  async verifyUser(@Query() query: VerifyOtpQueryDto): Promise<void> {
+  async verifyUser(@Query() query: VerifyOtpDto): Promise<void> {
     await this.iamService.client.get('/auth/verify', { params: query });
   }
 
@@ -137,36 +130,14 @@ export class AuthController {
   }
 
   @Public()
-  @Get('recover/code')
-  @ApiOperation({
-    summary: 'Verify otp for reset password',
-  })
-  @ApiOkBaseResponse(OtpTokenResult, {
-    description: 'Verify OTP successfully',
-  })
-  async recoverCode(
-    @Query() query: VerifyOtpQueryDto,
-  ): Promise<BaseResponse<OtpTokenResult>> {
-    const res: IAMApiResponseInterface = await this.iamService.client
-      .get('/auth/recover/code', { params: query })
-      .then((res) => res.data);
-    return getBaseResponse<OtpTokenResult>(res, OtpTokenResult);
-  }
-
-  @Public()
   @Post('recover/password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Reset password',
   })
   @ApiOkResponse({ description: 'Reset password successfully' })
-  async recoverPassword(
-    @Authorization() authorization: string,
-    @Body() dto: UpdatePasswordDto,
-  ): Promise<void> {
-    await this.iamService.client.post('/auth/recover/password', dto, {
-      headers: { authorization },
-    });
+  async recoverPassword(@Body() dto: ResetPasswordDto): Promise<void> {
+    await this.iamService.client.post('/auth/recover/password', dto, {});
   }
 
   @Public()
@@ -176,8 +147,8 @@ export class AuthController {
   })
   @ApiOkResponse({ description: 'Resend otp success' })
   async resendOtp(@Query() query: ResendOtpQueryDto): Promise<void> {
-    await this.iamService.client.get('/auth/resend', {
-      params: { ...query, type: 'resetPassword' },
+    await this.iamService.client.get('/otps/send', {
+      params: { ...query, type: OtpTypeEnum.resetPassword },
     });
   }
 
@@ -188,25 +159,11 @@ export class AuthController {
   })
   @ApiOkResponse({ description: 'Resend otp success' })
   async resendVerifiedOtp(@Query() query: ResendOtpQueryDto): Promise<void> {
-    await this.iamService.client.get('/auth/resend', {
+    await this.iamService.client.get('/otps/send', {
       params: {
         ...query,
-        type: 'verifyUser',
+        type: OtpTypeEnum.verifyUser,
       },
     });
-  }
-
-  @Get('refresh-token')
-  @ApiOkBaseResponse(TokenResult, {
-    description: 'Refresh token successfully',
-  })
-  async refreshToken(
-    @Authorization() authorization: string,
-  ): Promise<BaseResponse<TokenResult>> {
-    const res: IAMApiResponseInterface = await this.iamService.client.get(
-      '/auth/refesh-token',
-      { headers: { authorization } },
-    );
-    return getBaseResponse(res, TokenResult);
   }
 }

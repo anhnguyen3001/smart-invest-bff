@@ -16,7 +16,7 @@ import {
 } from 'class-validator';
 import { BASE_SORT_BY, QueryCoreDto, ResponseWithPagination } from 'common/dto';
 
-class RoleDto {
+export class RoleDto {
   @Expose()
   @ApiProperty({
     type: 'number',

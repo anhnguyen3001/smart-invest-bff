@@ -1,7 +1,9 @@
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { PATTERN_VALIDATION } from 'common/constants/validation';
-import { Expose } from 'class-transformer';
+import { Mixin } from 'ts-mixer';
+import { UpdatePasswordDto } from 'user/user.dto';
 
 export class LoginDto {
   @ApiProperty({ type: 'string' })
@@ -51,14 +53,7 @@ export class SignupDto {
   username: string;
 }
 
-export class ForgetPasswordDto {
-  @ApiProperty({ type: 'string' })
-  @Matches(PATTERN_VALIDATION.email)
-  @IsString()
-  email: string;
-}
-
-export class VerifyOtpQueryDto {
+export class VerifyOtpDto {
   @ApiProperty({ type: 'string' })
   @IsString()
   @Matches(PATTERN_VALIDATION.email)
@@ -68,6 +63,15 @@ export class VerifyOtpQueryDto {
   @IsString()
   code: string;
 }
+
+export class ForgetPasswordDto {
+  @ApiProperty({ type: 'string' })
+  @Matches(PATTERN_VALIDATION.email)
+  @IsString()
+  email: string;
+}
+
+export class ResetPasswordDto extends Mixin(VerifyOtpDto, UpdatePasswordDto) {}
 
 export class OtpTokenResult {
   @Expose()

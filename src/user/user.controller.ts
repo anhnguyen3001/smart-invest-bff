@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpStatus,
   Param,
   Patch,
   Post,
@@ -12,12 +11,10 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiNoContentResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetUser, GetUserId } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import { Identity, RequestParamId } from 'common/dto';
 import {
@@ -28,14 +25,10 @@ import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { IAMService } from 'external/iam/iam.service';
 import {
-  ChangePasswordDto,
   CreateUserDto,
   SearchUserDto,
   SearchUsersResponse,
-  UpdateProfileDto,
   UpdateUserDto,
-  UserDto,
-  UserResponseDto,
 } from './user.dto';
 
 @ApiBearerAuth()
@@ -109,50 +102,5 @@ export class UserController {
   })
   async deleteRoute(@Param() params: RequestParamId): Promise<void> {
     await this.iamService.client.delete(`/users/${params.id}`);
-  }
-
-  @Get('me')
-  @ApiOperation({
-    summary: 'Get user info',
-  })
-  @ApiOkBaseResponse(UserResponseDto, {
-    description: 'Get user info successfully',
-  })
-  async getUserInfo(
-    @GetUser() user: UserDto,
-  ): Promise<BaseResponse<UserResponseDto>> {
-    return getBaseResponse(
-      {
-        data: { user },
-      },
-      UserResponseDto,
-    );
-  }
-
-  @Patch('me')
-  @ApiOperation({
-    summary: 'Update user profile',
-  })
-  @ApiNoContentResponse({
-    description: 'Update user profile successfully',
-  })
-  async updateProfile(
-    @GetUserId() id: number,
-    @Body() data: UpdateProfileDto,
-  ): Promise<void> {
-    await this.iamService.client.post('/users', data, { params: { id } });
-  }
-
-  @Post('change-password')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: 'Change password',
-  })
-  @ApiNoContentResponse({ description: 'Change password successfully' })
-  async changePassword(
-    @GetUserId() id: number,
-    @Body() data: ChangePasswordDto,
-  ): Promise<void> {
-    await this.iamService.client.post('/users', data, { params: { id } });
   }
 }

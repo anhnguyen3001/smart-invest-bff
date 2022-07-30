@@ -14,7 +14,13 @@ import {
   MinLength,
 } from 'class-validator';
 import { PATTERN_VALIDATION } from 'common/constants/validation';
-import { BASE_SORT_BY, QueryCoreDto, ResponseWithPagination } from 'common/dto';
+import {
+  BaseEntityDto,
+  BASE_SORT_BY,
+  QueryCoreDto,
+  ResponseWithPagination,
+} from 'common/dto';
+import { RoleDto } from 'role/role.dto';
 import { PasswordNotMatchException } from './user.exception';
 
 enum LoginMethodEnum {
@@ -23,7 +29,7 @@ enum LoginMethodEnum {
   google = 'google',
 }
 
-export class UserDto {
+export class UserDto extends BaseEntityDto {
   @Expose()
   @ApiProperty({
     type: 'number',
@@ -46,6 +52,12 @@ export class UserDto {
   @ApiProperty({
     type: 'string',
   })
+  password: string;
+
+  @Expose()
+  @ApiProperty({
+    type: 'string',
+  })
   avatar?: string;
 
   @Expose()
@@ -59,28 +71,12 @@ export class UserDto {
     enum: LoginMethodEnum,
   })
   method?: LoginMethodEnum;
-}
 
-export class UpdatePasswordDto {
-  @ApiProperty({ type: 'string' })
-  @Matches(PATTERN_VALIDATION.password)
-  newPassword: string;
-
-  @ApiProperty({ type: 'string' })
-  @Matches(PATTERN_VALIDATION.password)
-  confirmPassword: string;
-
-  validate() {
-    if (this.newPassword !== this.confirmPassword) {
-      throw new PasswordNotMatchException();
-    }
-  }
-}
-
-export class ChangePasswordDto extends UpdatePasswordDto {
-  @ApiProperty({ type: 'string' })
-  @Matches(PATTERN_VALIDATION.password)
-  oldPassword: string;
+  @Expose()
+  @ApiProperty({
+    type: RoleDto,
+  })
+  role?: RoleDto;
 }
 
 export class UpdateProfileDto {
@@ -97,6 +93,22 @@ export class UpdateProfileDto {
   @IsString()
   @IsOptional()
   avatar?: string;
+}
+
+export class UpdatePasswordDto {
+  @ApiProperty({ type: 'string' })
+  @Matches(PATTERN_VALIDATION.password)
+  newPassword: string;
+
+  @ApiProperty({ type: 'string' })
+  @Matches(PATTERN_VALIDATION.password)
+  confirmPassword: string;
+
+  validate() {
+    if (this.newPassword !== this.confirmPassword) {
+      throw new PasswordNotMatchException();
+    }
+  }
 }
 
 export class UserResponseDto {
