@@ -20,6 +20,7 @@ import {
   QueryCoreDto,
   ResponseWithPagination,
 } from 'common/dto';
+import { PermissionDto } from 'permission/permission.dto';
 import { RoleDto } from 'role/role.dto';
 import { PasswordNotMatchException } from './user.exception';
 
@@ -77,6 +78,12 @@ export class UserDto extends BaseEntityDto {
     type: RoleDto,
   })
   role?: RoleDto;
+
+  @Expose()
+  @ApiProperty({
+    type: [PermissionDto],
+  })
+  permissions?: [PermissionDto];
 }
 
 export class UpdateProfileDto {
