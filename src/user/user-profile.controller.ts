@@ -35,7 +35,7 @@ import {
 export class UserProfileController {
   constructor(private readonly iamService: IAMService) {}
 
-  @Get('me')
+  @Get()
   @ApiOperation({
     summary: 'Get user info',
   })
@@ -53,7 +53,7 @@ export class UserProfileController {
     );
   }
 
-  @Patch('me')
+  @Patch()
   @ApiOperation({
     summary: 'Update user profile',
   })
