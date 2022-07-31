@@ -75,15 +75,39 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    if (exception instanceof APIException) {
+      nestLogger.warn(exception.toJSON());
+      return response.status(exception.getStatus()).json(exception.toObj());
+    }
+
+    if (exception instanceof HttpException) {
+      nestLogger.error(
+        (exception as any)?.stack || (exception as any)?.message,
+      );
+      return response
+        .status(exception.getStatus())
+        .json(
+          new APIException(
+            ApiCode[500].UNHANDLED_ERROR.code,
+            exception.getStatus(),
+            (exception.getResponse() as any)?.message ||
+              ApiCode[500].UNHANDLED_ERROR.description,
+          ).toObj(),
+        );
+    }
     nestLogger.error(exception?.stack || exception?.message);
 
-    const { code, message } = exception.response.data || {};
+    const { data = {}, status } = exception.response || {};
+    const statusResponse = status || 500;
+
+    const { code, message } = data;
+
     return response
-      .status(500)
+      .status(statusResponse)
       .json(
         new APIException(
           code || ApiCode[500].UNKNOWN_ERROR.code,
-          500,
+          statusResponse,
           message || ApiCode[500].UNKNOWN_ERROR.description,
           JSON.stringify(exception),
         ).toObj(),

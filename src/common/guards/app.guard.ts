@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IAMService } from 'external/iam/iam.service';
-import { AccessDeniedException } from '../../auth/auth.exception';
 
 @Injectable()
 export class AppGuard implements CanActivate {
@@ -20,14 +19,13 @@ export class AppGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const { authorization } = request.headers;
-    const user = await this.iamService.client.get('/me', {
+    const { data } = await this.iamService.client.get('me', {
       headers: { authorization },
     });
-    if (!user) {
-      throw new AccessDeniedException();
-    }
 
+    const { user } = data.data;
     request.user = user;
+
     return true;
   }
 }
