@@ -103,7 +103,7 @@ export class AuthController {
   })
   async signup(@Body() dto: SignupDto): Promise<void> {
     await this.iamService.client.post('/auth/signup', {
-      dto,
+      ...dto,
       roleCode: configService.getValue('USER_ROLE_CODE'),
     });
   }
