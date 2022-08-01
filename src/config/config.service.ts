@@ -45,7 +45,7 @@ class ConfigService {
   }
 
   public getTimeoutExternal() {
-    return this.toNumber(this.getValueOptional('EXTERNAL_TIMEOUT') || '5000');
+    return this.toNumber(this.getValueOptional('EXTERNAL_TIMEOUT') || '10000');
   }
 }
 

@@ -23,66 +23,6 @@ export const ApiCode = {
       code: '001',
       description: 'The something field on headers can not be found',
     },
-    EXISTED_ENTITY: {
-      code: '002',
-      description: 'User has been existed',
-    },
-
-    // User
-    USER_EXISTED: {
-      code: '1002',
-      description: 'User has been existed',
-    },
-    PASSWORD_NOT_MATCH: {
-      code: '1003',
-      description: "Password and confirm password don't match",
-    },
-    OLD_PASSWORD_INCORRECT: {
-      code: '1004',
-      description: 'Old password is incorrect',
-    },
-    INVALID_TOKEN: {
-      code: '1005',
-      description: 'Invalid token',
-    },
-    VERIFIED_USER: {
-      code: '1006',
-      description: 'Your email had already been verified',
-    },
-    INVALID_CREDENTIALS: {
-      code: '1005',
-      description: 'Invalid credentials',
-    },
-    LACK_PASSWORD: {
-      code: '1006',
-      description: 'Lack of password to create account',
-    },
-    RECENTLY_SEND_MAIL: {
-      code: '1007',
-      description: 'Mail have recently been sent',
-    },
-    RECENTLY_SENT_OTP: {
-      code: '1007',
-      description: 'OTP has recently been sent',
-    },
-    EXPIRED_OTP: {
-      code: '1007',
-      description: 'OTP has been expired',
-    },
-    INVALID_OTP: {
-      code: '1007',
-      description: 'Invalid OTP',
-    },
-    UNVERIFIED_USER: {
-      code: '1006',
-      description: 'Your email had not been verified',
-    },
-
-    // Role
-    REMOVE_USED_ROLE: {
-      code: '2001',
-      description: 'Role is used ',
-    },
   },
 
   [HttpStatus.UNAUTHORIZED]: {

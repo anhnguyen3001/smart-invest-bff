@@ -20,7 +20,7 @@ import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { IAMService } from 'external/iam/iam.service';
 import {
-  UpdatePasswordDto,
+  ChangePasswordDto,
   UpdateProfileDto,
   UserDto,
   UserResponseDto,
@@ -75,8 +75,11 @@ export class UserProfileController {
   @ApiNoContentResponse({ description: 'Change password successfully' })
   async changePassword(
     @GetUserId() id: number,
-    @Body() data: UpdatePasswordDto,
+    @Body() data: ChangePasswordDto,
   ): Promise<void> {
-    await this.iamService.client.post('/users', data, { params: { id } });
+    await this.iamService.client.post('/me/change-password', {
+      ...data,
+      userId: id,
+    });
   }
 }

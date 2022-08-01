@@ -7,13 +7,11 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Matches,
   Max,
   MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
-import { PATTERN_VALIDATION } from 'common/constants/validation';
 import {
   BaseEntityDto,
   BASE_SORT_BY,
@@ -22,7 +20,6 @@ import {
 } from 'common/dto';
 import { PermissionDto } from 'permission/permission.dto';
 import { RoleDto } from 'role/role.dto';
-import { PasswordNotMatchException } from './user.exception';
 
 enum LoginMethodEnum {
   local = 'local',
@@ -77,12 +74,14 @@ export class UserDto extends BaseEntityDto {
   @ApiProperty({
     type: RoleDto,
   })
+  @Type(() => RoleDto)
   role?: RoleDto;
 
   @Expose()
   @ApiProperty({
     type: [PermissionDto],
   })
+  @Type(() => PermissionDto)
   permissions?: [PermissionDto];
 }
 
@@ -102,20 +101,18 @@ export class UpdateProfileDto {
   avatar?: string;
 }
 
-export class UpdatePasswordDto {
+export class ChangePasswordDto {
   @ApiProperty({ type: 'string' })
-  @Matches(PATTERN_VALIDATION.password)
+  @IsString()
+  oldPassword: string;
+
+  @ApiProperty({ type: 'string' })
+  @IsString()
   newPassword: string;
 
   @ApiProperty({ type: 'string' })
-  @Matches(PATTERN_VALIDATION.password)
+  @IsString()
   confirmPassword: string;
-
-  validate() {
-    if (this.newPassword !== this.confirmPassword) {
-      throw new PasswordNotMatchException();
-    }
-  }
 }
 
 export class UserResponseDto {
@@ -153,7 +150,6 @@ export class SearchUsersResponse extends ResponseWithPagination {
 export class CreateUserDto {
   @ApiProperty({ type: 'string' })
   @IsString()
-  @Matches(PATTERN_VALIDATION.email)
   email: string;
 
   @ApiProperty({ type: 'string' })
@@ -169,7 +165,6 @@ export class CreateUserDto {
 
   @ApiProperty({ type: 'string', required: false })
   @IsString()
-  @Matches(PATTERN_VALIDATION.password)
   password?: string;
 
   @ApiProperty({ enum: LoginMethodEnum, required: false })

@@ -100,7 +100,7 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     const { data = {}, status } = exception.response || {};
     const statusResponse = status || 500;
 
-    const { code, message } = data;
+    const { code, message, details } = data;
 
     return response
       .status(statusResponse)
@@ -109,7 +109,7 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
           code || ApiCode[500].UNKNOWN_ERROR.code,
           statusResponse,
           message || ApiCode[500].UNKNOWN_ERROR.description,
-          JSON.stringify(exception),
+          details,
         ).toObj(),
       );
   }
