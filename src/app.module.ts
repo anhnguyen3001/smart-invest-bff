@@ -9,6 +9,7 @@ import { FavoriteListModule } from 'favoriteList/favorite-list.module';
 import { FavoriteTickerModule } from 'favoriteTicker/favorite-ticker.module';
 import { FinancialStatementModule } from 'financial-statement/financial-statement.module';
 import { NewsModule } from 'news/news.module';
+import { TickerModule } from 'ticker/ticker.module';
 import { UserModule } from 'user/user.module';
 import { CompanyModule } from './company/company.module';
 
@@ -24,6 +25,7 @@ import { CompanyModule } from './company/company.module';
     CommentModule,
     FavoriteListModule,
     FavoriteTickerModule,
+    TickerModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AppGuard }],
 })
