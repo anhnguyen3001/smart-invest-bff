@@ -1,22 +1,8 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Query,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUserId } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
-import { Identity, RequestParamId } from 'common/dto';
+import { Identity } from 'common/dto';
 import {
   BaseResponse,
   ServerApiResponseInterface,
@@ -79,22 +65,5 @@ export class FavoriteTickerController {
       .then((res) => res.data);
 
     return getBaseResponse<Identity>(res, Identity);
-  }
-
-  @Delete(':id')
-  @ApiParam({ name: 'id', type: 'number' })
-  @ApiOperation({
-    summary: 'Delete favorite ticker',
-  })
-  async deleteFavoriteTicker(
-    @GetUserId() id: number,
-    @Param() params: RequestParamId,
-  ): Promise<void> {
-    await this.coreService.client.delete(`/favorite-tickers`, {
-      data: {
-        favoriteTickerIds: [params.id],
-        userId: id,
-      },
-    });
   }
 }

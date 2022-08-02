@@ -30,6 +30,7 @@ import { configService } from 'config/config.service';
 import { CoreService } from 'external/core/core.service';
 import {
   CreateFavoriteListRequest,
+  DeleteFavoriteTickerParams,
   GetListFavoriteQuery,
   GetListFavoriteResponse,
   UpdateFavoriteListRequest,
@@ -132,5 +133,27 @@ export class FavoriteListController {
         userId: id,
       },
     });
+  }
+
+  @Delete(':id/tickers/:companyId')
+  @HttpCode(204)
+  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({ name: 'companyId', type: 'number' })
+  @ApiOperation({
+    summary: 'Delete favorite ticker',
+  })
+  async deleteFavoriteTicker(
+    @GetUserId() userId: number,
+    @Param() params: DeleteFavoriteTickerParams,
+  ): Promise<void> {
+    await this.coreService.client.delete(
+      `/favorite-lists/${params.id}/tickers`,
+      {
+        data: {
+          companyIds: [params.companyId],
+          userId,
+        },
+      },
+    );
   }
 }

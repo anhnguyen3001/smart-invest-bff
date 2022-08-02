@@ -1,7 +1,11 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
-import { CoreQueryDto, ResponseWithPagination } from 'common/dto';
+import { IsInt, IsOptional, IsString } from 'class-validator';
+import {
+  CoreQueryDto,
+  RequestParamId,
+  ResponseWithPagination,
+} from 'common/dto';
 
 export class FavoriteListDto {
   @Expose()
@@ -43,3 +47,10 @@ export class CreateFavoriteListRequest {
 export class UpdateFavoriteListRequest extends PartialType(
   CreateFavoriteListRequest,
 ) {}
+
+export class DeleteFavoriteTickerParams extends RequestParamId {
+  @ApiProperty({ type: 'number' })
+  @IsInt()
+  @Type(() => Number)
+  companyId: number;
+}
