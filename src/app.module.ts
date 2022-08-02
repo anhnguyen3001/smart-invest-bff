@@ -5,6 +5,7 @@ import { AppGuard } from 'common/guards/app.guard';
 import { CoreModule } from 'external/core/core.module';
 import { IAMModule } from 'external/iam/iam.module';
 import { FinancialStatementModule } from 'financial-statement/financial-statement.module';
+import { NewsModule } from 'news/news.module';
 import { UserModule } from 'user/user.module';
 import { CompanyModule } from './company/company.module';
 
@@ -16,6 +17,7 @@ import { CompanyModule } from './company/company.module';
     UserModule,
     CompanyModule,
     FinancialStatementModule,
+    NewsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AppGuard }],
 })
