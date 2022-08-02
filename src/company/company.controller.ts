@@ -1,5 +1,10 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RequestParamId } from 'common/dto';
 import { ServerApiResponseInterface } from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
@@ -7,6 +12,7 @@ import { configService } from 'config/config.service';
 import { CoreService } from 'external/core/core.service';
 import { CompanyDto } from './company.dto';
 
+@ApiBearerAuth()
 @ApiTags('Company')
 @Controller({
   path: 'company',

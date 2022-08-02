@@ -83,6 +83,12 @@ export class UserDto extends BaseEntityDto {
   permissions?: [PermissionDto];
 }
 
+export class UserInListDto extends PickType(UserDto, [
+  'id',
+  'username',
+  'avatar',
+]) {}
+
 export class UpdateProfileDto {
   @ApiProperty({ type: 'string' })
   @IsString()
