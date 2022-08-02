@@ -31,13 +31,6 @@ export class GetListFavoriteResponse extends ResponseWithPagination {
   favoriteLists: FavoriteListDto[];
 }
 
-export class GetFavoriteListResponse {
-  @Expose()
-  @ApiProperty({ type: FavoriteListDto })
-  @Type(() => FavoriteListDto)
-  favoriteList: FavoriteListDto;
-}
-
 export class CreateFavoriteListRequest {
   @ApiProperty({ type: 'string' })
   @IsString()
