@@ -5,6 +5,7 @@ export interface ServerApiResponseInterface {
   code?: string;
   message?: string;
   data?: any;
+  detail?: any;
 }
 
 export class BaseResponse<T> {
