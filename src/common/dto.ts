@@ -81,3 +81,8 @@ export class BaseEntityDto {
   @ApiProperty({ type: 'string' })
   updatedAt: string;
 }
+
+export enum SortEnum {
+  ASC = 'asc',
+  DESC = 'desc',
+}

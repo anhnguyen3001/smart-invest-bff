@@ -5,8 +5,12 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import { RequestParamId } from 'common/dto';
-import { ServerApiResponseInterface } from 'common/types/api-response.type';
+import {
+  BaseResponse,
+  ServerApiResponseInterface,
+} from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { CoreService } from 'external/core/core.service';
@@ -26,7 +30,10 @@ export class CompanyController {
     summary: 'Get company by id',
   })
   @ApiParam({ name: 'id', type: 'number' })
-  async getCompany(@Param() params: RequestParamId) {
+  @ApiOkBaseResponse(CompanyDto, { description: 'Get company successfully' })
+  async getCompany(
+    @Param() params: RequestParamId,
+  ): Promise<BaseResponse<CompanyDto>> {
     const res: ServerApiResponseInterface = await this.coreService.client
       .get(`/companies/${params.id}`)
       .then((res) => res.data);

@@ -1,6 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ServerApiResponseInterface } from 'common/types/api-response.type';
+import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
+import {
+  BaseResponse,
+  ServerApiResponseInterface,
+} from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { CoreService } from 'external/core/core.service';
@@ -19,7 +23,12 @@ export class NewsController {
   @ApiOperation({
     summary: 'Get list news',
   })
-  async getListNews(@Query() query: GetListNewsQuery) {
+  @ApiOkBaseResponse(GetListNewsResponse, {
+    description: 'Get list news successfully',
+  })
+  async getListNews(
+    @Query() query: GetListNewsQuery,
+  ): Promise<BaseResponse<GetListNewsResponse>> {
     const res: ServerApiResponseInterface = await this.coreService.client
       .get(`/news`, { params: query })
       .then((res) => res.data);

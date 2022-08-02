@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import { ServerApiResponseInterface } from 'common/types/api-response.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
@@ -20,6 +21,9 @@ export class FinancialStatementController {
   @Get()
   @ApiOperation({
     summary: 'Get financial statements of company',
+  })
+  @ApiOkBaseResponse(GetFinancialStatementsResponse, {
+    description: 'Get financial statements successfully',
   })
   async getFinancialStatements(@Query() query: GetFinancialStatementsQuery) {
     const res: ServerApiResponseInterface = await this.coreService.client

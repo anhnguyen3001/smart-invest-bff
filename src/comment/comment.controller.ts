@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUserId } from 'common/decorators/request.decorator';
+import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import {
   BaseResponse,
   ServerApiResponseInterface,
@@ -33,6 +34,9 @@ export class CommentController {
   @ApiOperation({
     summary: 'Get list comments',
   })
+  @ApiOkBaseResponse(GetCommentsResponse, {
+    description: 'Get list comments successfully',
+  })
   async getComments(
     @Query() query: GetCommentsQuery,
   ): Promise<BaseResponse<GetCommentsResponse>> {
@@ -61,8 +65,12 @@ export class CommentController {
   }
 
   @Post()
+  @HttpCode(200)
   @ApiOperation({
     summary: 'Create comment',
+  })
+  @ApiOkBaseResponse(PostCommentResponse, {
+    description: 'Create comment successfully',
   })
   async createComment(
     @GetUserId() id: number,

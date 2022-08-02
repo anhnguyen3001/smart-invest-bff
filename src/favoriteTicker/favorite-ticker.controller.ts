@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Query,
@@ -14,6 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GetUserId } from 'common/decorators/request.decorator';
+import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import { Identity, RequestParamId } from 'common/dto';
 import {
   BaseResponse,
@@ -41,6 +43,9 @@ export class FavoriteTickerController {
   @ApiOperation({
     summary: 'Get favorite tickers',
   })
+  @ApiOkBaseResponse(GetFavoriteTickersResponse, {
+    description: 'Get favorite tickers successfully',
+  })
   async getFavoriteTickers(
     @GetUserId() id: number,
     @Query() query: GetFavoriteTickersQuery,
@@ -55,8 +60,12 @@ export class FavoriteTickerController {
   }
 
   @Post()
+  @HttpCode(200)
   @ApiOperation({
     summary: 'Add favorite ticker',
+  })
+  @ApiOkBaseResponse(Identity, {
+    description: 'Add favorite ticker successfully',
   })
   async addTicker(
     @GetUserId() id: number,

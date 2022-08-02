@@ -2,12 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { CoreQueryDto, ResponseWithPagination } from 'common/dto';
-
-export enum ExchangeEnum {
-  HSX = 'HSX',
-  UPCOM = 'UPCOM',
-  HNX = 'HNX',
-}
+import { TickerDto } from 'ticker/ticker.dto';
 
 export class FavoriteListDto {
   @Expose()
@@ -30,36 +25,6 @@ export class GetFavoriteTickersQuery extends CoreQueryDto {
   @Type(() => Number)
   @IsOptional()
   listId?: number;
-}
-
-export class TickerDto {
-  @Expose()
-  @ApiProperty({ type: 'number' })
-  companyId: number;
-
-  @Expose()
-  @ApiProperty({ type: 'string' })
-  name: string;
-
-  @Expose()
-  @ApiProperty({ type: 'string' })
-  symbol: string;
-
-  @Expose()
-  @ApiProperty({ enum: ExchangeEnum, type: 'enum' })
-  exchange: ExchangeEnum;
-
-  @Expose()
-  @ApiProperty({ type: 'number' })
-  lastPercentChange: number;
-
-  @Expose()
-  @ApiProperty({ type: 'number' })
-  lastPriceChange: number;
-
-  @Expose()
-  @ApiProperty({ type: 'number' })
-  lastClosePrice: number;
 }
 
 export class GetFavoriteTickersResponse extends ResponseWithPagination {

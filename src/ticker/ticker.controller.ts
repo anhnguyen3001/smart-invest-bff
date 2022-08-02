@@ -1,0 +1,70 @@
+import { Controller, Get, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
+import {
+  BaseResponse,
+  ServerApiResponseInterface,
+} from 'common/types/api-response.type';
+import { getBaseResponse } from 'common/utils/response';
+import { configService } from 'config/config.service';
+import { CoreService } from 'external/core/core.service';
+import {
+  GetTickerPredictedPriceQuery,
+  GetTickerPriceQuery,
+  GetTickerPriceResponse,
+  GetTickersQuery,
+  GetTickersResponse,
+} from './ticker.dto';
+
+@ApiBearerAuth()
+@ApiTags('Ticker')
+@Controller({
+  path: 'tickers',
+  version: configService.getValue('API_VERSION'),
+})
+export class TickerController {
+  constructor(private readonly coreService: CoreService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'Search tickers',
+  })
+  @ApiOkBaseResponse(GetTickersResponse, {
+    description: 'Get tickers successfully',
+  })
+  async getTickers(
+    @Query() query: GetTickersQuery,
+  ): Promise<BaseResponse<GetTickersResponse>> {
+    const res: ServerApiResponseInterface = await this.coreService.client
+      .get(`/tickers`, { params: query })
+      .then((res) => res.data);
+    return getBaseResponse<GetTickersResponse>(res, GetTickersResponse);
+  }
+
+  @Get('price')
+  @ApiOperation({
+    summary: 'Add favorite ticker',
+  })
+  @ApiOkBaseResponse(GetTickerPriceResponse, {
+    description: 'Get ticker prices successfully',
+  })
+  async addTicker(
+    @Query() query: GetTickerPriceQuery,
+  ): Promise<BaseResponse<GetTickerPriceResponse>> {
+    const res: ServerApiResponseInterface = await this.coreService.client
+      .get(`/tickers`, { params: query })
+      .then((res) => res.data);
+
+    return getBaseResponse<GetTickerPriceResponse>(res, GetTickerPriceResponse);
+  }
+
+  @Get('predicted-price')
+  @ApiOperation({
+    summary: 'Get predicted prices',
+  })
+  async getPredictedPrice(
+    @Query() _: GetTickerPredictedPriceQuery,
+  ): Promise<void> {
+    await this.coreService.client.get(`/predicted-prices`, {});
+  }
+}

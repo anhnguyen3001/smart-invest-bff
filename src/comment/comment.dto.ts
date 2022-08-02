@@ -4,12 +4,6 @@ import { IsNumber, IsString } from 'class-validator';
 import { CoreQueryDto, ResponseWithPagination } from 'common/dto';
 import { UserInListDto } from 'user/user.dto';
 
-export enum ExchangeEnum {
-  HSX = 'HSX',
-  UPCOM = 'UPCOM',
-  HNX = 'HNX',
-}
-
 export class CommentDto {
   @Expose()
   @ApiProperty({ type: 'number' })

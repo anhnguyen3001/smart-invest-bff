@@ -3,12 +3,6 @@ import { Expose, Type } from 'class-transformer';
 import { IsNumber, IsOptional } from 'class-validator';
 import { CoreQueryDto, ResponseWithPagination } from 'common/dto';
 
-export enum ExchangeEnum {
-  HSX = 'HSX',
-  UPCOM = 'UPCOM',
-  HNX = 'HNX',
-}
-
 export class NewsDto {
   @Expose()
   @ApiProperty({ type: 'number' })
@@ -32,7 +26,7 @@ export class NewsDto {
 
   @Expose()
   @ApiProperty({ type: 'string' })
-  symbole: string;
+  symbol: string;
 }
 
 export class GetListNewsQuery extends CoreQueryDto {

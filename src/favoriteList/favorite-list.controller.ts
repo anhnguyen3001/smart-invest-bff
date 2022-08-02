@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -15,6 +16,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GetUserId } from 'common/decorators/request.decorator';
+import {
+  ApiBaseResponse,
+  ApiOkBaseResponse,
+} from 'common/decorators/response.decorator';
 import { Identity, RequestParamId } from 'common/dto';
 import {
   BaseResponse,
@@ -43,6 +48,9 @@ export class FavoriteListController {
   @ApiOperation({
     summary: 'Get favorite lists',
   })
+  @ApiOkBaseResponse(GetListFavoriteResponse, {
+    description: 'Get list favorite list successfully',
+  })
   async getFavoriteLists(
     @GetUserId() id: number,
     @Query() query: GetListFavoriteQuery,
@@ -50,7 +58,7 @@ export class FavoriteListController {
     const res: ServerApiResponseInterface = await this.coreService.client
       .get(`/favorite-lists`, { params: { ...query, userId: id } })
       .then((res) => res.data);
-    console.log(res);
+
     return getBaseResponse<GetListFavoriteResponse>(
       res,
       GetListFavoriteResponse,
@@ -58,8 +66,12 @@ export class FavoriteListController {
   }
 
   @Post()
+  @HttpCode(200)
   @ApiOperation({
     summary: 'Create favorite list',
+  })
+  @ApiOkBaseResponse(Identity, {
+    description: 'Create favorite list successfully',
   })
   async createList(
     @GetUserId() id: number,
@@ -76,9 +88,13 @@ export class FavoriteListController {
   }
 
   @Patch(':id')
+  @HttpCode(200)
   @ApiParam({ name: 'id', type: 'number' })
   @ApiOperation({
     summary: 'Update favorite list',
+  })
+  @ApiOkBaseResponse(Identity, {
+    description: 'Update favorite list successfully',
   })
   async updateList(
     @GetUserId() id: number,
@@ -97,9 +113,14 @@ export class FavoriteListController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @ApiParam({ name: 'id', type: 'number' })
   @ApiOperation({
     summary: 'Delete favorite list',
+  })
+  @ApiBaseResponse(Identity, {
+    status: 204,
+    description: 'Create favorite list successfully',
   })
   async deleteList(
     @GetUserId() id: number,

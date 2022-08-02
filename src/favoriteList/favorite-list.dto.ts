@@ -3,12 +3,6 @@ import { Expose, Type } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 import { CoreQueryDto, ResponseWithPagination } from 'common/dto';
 
-export enum ExchangeEnum {
-  HSX = 'HSX',
-  UPCOM = 'UPCOM',
-  HNX = 'HNX',
-}
-
 export class FavoriteListDto {
   @Expose()
   @ApiProperty({ type: 'number' })
