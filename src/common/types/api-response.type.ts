@@ -1,11 +1,10 @@
 import { ApiResponseProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
-export interface IAMApiResponseInterface {
+export interface ServerApiResponseInterface {
   code?: string;
   message?: string;
   data?: any;
-  details?: any;
 }
 
 export class BaseResponse<T> {

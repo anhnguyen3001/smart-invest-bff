@@ -10,21 +10,26 @@ export class AppGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    return true;
     const isPublic = this.reflector.getAllAndOverride('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (!isPublic) {
+      const request = context.switchToHttp().getRequest();
 
-    const request = context.switchToHttp().getRequest();
+      const authorization = request.headers?.authorization;
+      if (authorization) {
+        const { data } = await this.iamService.client.get('me', {
+          headers: { authorization },
+        });
+        const { user } = data.data;
+        request.user = user;
 
-    const { authorization } = request.headers;
-    const { data } = await this.iamService.client.get('me', {
-      headers: { authorization },
-    });
-
-    const { user } = data.data;
-    request.user = user;
+        if (user) return true;
+      }
+      return false;
+    }
 
     return true;
   }

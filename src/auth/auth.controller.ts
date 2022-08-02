@@ -17,7 +17,7 @@ import { Public } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import {
   BaseResponse,
-  IAMApiResponseInterface,
+  ServerApiResponseInterface,
 } from 'common/types/api-response.type';
 import { OtpTypeEnum } from 'common/types/entity.type';
 import { getBaseResponse } from 'common/utils/response';
@@ -52,7 +52,7 @@ export class AuthController {
     description: 'Login successfully',
   })
   async login(@Body() loginDto: LoginDto): Promise<BaseResponse<TokenResult>> {
-    const res: IAMApiResponseInterface = await this.iamService.client
+    const res: ServerApiResponseInterface = await this.iamService.client
       .post('/auth/login', loginDto)
       .then((res) => res.data);
     return getBaseResponse<TokenResult>(res, TokenResult);
@@ -69,7 +69,7 @@ export class AuthController {
   async loginFB(
     @Query() query: LoginSocialDto,
   ): Promise<BaseResponse<TokenResult>> {
-    const res: IAMApiResponseInterface = await this.iamService.client
+    const res: ServerApiResponseInterface = await this.iamService.client
       .get('/auth/facebook', { params: query })
       .then((res) => res.data);
 
@@ -87,7 +87,7 @@ export class AuthController {
   async loginGoogle(
     @Query() query: LoginSocialDto,
   ): Promise<BaseResponse<TokenResult>> {
-    const res: IAMApiResponseInterface = await this.iamService.client
+    const res: ServerApiResponseInterface = await this.iamService.client
       .get('/auth/google', { params: query })
       .then((res) => res.data);
     return getBaseResponse<TokenResult>(res, TokenResult);

@@ -51,6 +51,6 @@ class ConfigService {
 
 const configService = new ConfigService(process.env);
 
-configService.ensureValues(['IAM_API', 'USER_ROLE_CODE']);
+configService.ensureValues(['IAM_API', 'CORE_API', 'USER_ROLE_CODE']);
 
 export { configService };
