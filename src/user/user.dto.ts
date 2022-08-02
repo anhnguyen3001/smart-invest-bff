@@ -103,6 +103,7 @@ export class UpdateProfileDto {
 
 export class ChangePasswordDto {
   @ApiProperty({ type: 'string' })
+  @IsString()
   oldPassword: string;
 
   @ApiProperty({ type: 'string' })
