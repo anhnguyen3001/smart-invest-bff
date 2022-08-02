@@ -37,7 +37,7 @@ export class FavoriteTickerController {
     @Query() query: GetFavoriteTickersQuery,
   ): Promise<BaseResponse<GetFavoriteTickersResponse>> {
     const res: ServerApiResponseInterface = await this.coreService.client
-      .get(`/favorite-tickers`, { params: { ...query, userId: id } })
+      .get(`/favorite-tickers`, { params: { ...query, userId: id || 1 } })
       .then((res) => res.data);
     return getBaseResponse<GetFavoriteTickersResponse>(
       res,

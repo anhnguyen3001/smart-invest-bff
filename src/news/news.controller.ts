@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GetUserId } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import {
   BaseResponse,
@@ -8,7 +9,11 @@ import {
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { CoreService } from 'external/core/core.service';
-import { GetListNewsQuery, GetListNewsResponse } from './news.dto';
+import {
+  GetFavoriteNewsQuery,
+  GetListNewsQuery,
+  GetListNewsResponse,
+} from './news.dto';
 
 @ApiBearerAuth()
 @ApiTags('News')
@@ -31,6 +36,23 @@ export class NewsController {
   ): Promise<BaseResponse<GetListNewsResponse>> {
     const res: ServerApiResponseInterface = await this.coreService.client
       .get(`/news`, { params: query })
+      .then((res) => res.data);
+    return getBaseResponse<GetListNewsResponse>(res, GetListNewsResponse);
+  }
+
+  @Get('me')
+  @ApiOperation({
+    summary: 'Get list news of favorite tickers',
+  })
+  @ApiOkBaseResponse(GetListNewsResponse, {
+    description: 'Get list news of favorite tickers successfully',
+  })
+  async getFavoriteNews(
+    @GetUserId() id: number,
+    @Query() query: GetFavoriteNewsQuery,
+  ): Promise<BaseResponse<GetListNewsResponse>> {
+    const res: ServerApiResponseInterface = await this.coreService.client
+      .get(`/news`, { params: { userId: id, ...query } })
       .then((res) => res.data);
     return getBaseResponse<GetListNewsResponse>(res, GetListNewsResponse);
   }

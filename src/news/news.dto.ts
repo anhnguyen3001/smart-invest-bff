@@ -43,3 +43,5 @@ export class GetListNewsResponse extends ResponseWithPagination {
   @Type(() => NewsDto)
   news: NewsDto[];
 }
+
+export class GetFavoriteNewsQuery extends CoreQueryDto {}
