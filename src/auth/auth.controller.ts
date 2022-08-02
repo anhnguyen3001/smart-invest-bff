@@ -105,6 +105,7 @@ export class AuthController {
     await this.iamService.client.post('/auth/signup', {
       ...dto,
       roleCode: configService.getValue('USER_ROLE_CODE'),
+      sendVerifiedEmail: true,
     });
   }
 
