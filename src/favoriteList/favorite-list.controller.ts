@@ -31,6 +31,7 @@ import { CoreService } from 'external/core/core.service';
 import {
   CreateFavoriteListRequest,
   DeleteFavoriteTickerParams,
+  GetFavoriteListResponse,
   GetListFavoriteQuery,
   GetListFavoriteResponse,
   UpdateFavoriteListRequest,
@@ -133,6 +134,27 @@ export class FavoriteListController {
         userId: id,
       },
     });
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get detail favorite list',
+  })
+  @ApiOkBaseResponse(GetFavoriteListResponse, {
+    description: 'Get favorite list successfully',
+  })
+  async getDetailFavoriteList(
+    @GetUserId() id: number,
+    @Param() param: RequestParamId,
+  ): Promise<BaseResponse<GetFavoriteListResponse>> {
+    const res: ServerApiResponseInterface = await this.coreService.client
+      .get(`/favorite-lists`, { params: { listId: param.id, userId: id } })
+      .then((res) => res.data);
+
+    return getBaseResponse<GetFavoriteListResponse>(
+      res,
+      GetFavoriteListResponse,
+    );
   }
 
   @Delete(':id/tickers/:companyId')
