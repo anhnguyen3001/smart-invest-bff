@@ -8,9 +8,7 @@ import {
   IsOptional,
   IsString,
   Max,
-  MaxLength,
   Min,
-  MinLength,
 } from 'class-validator';
 import {
   BaseEntityDto,
@@ -87,15 +85,11 @@ export class UserDto extends BaseEntityDto {
 
 export class UpdateProfileDto {
   @ApiProperty({ type: 'string' })
-  @MaxLength(255)
-  @MinLength(1)
   @IsString()
   @IsOptional()
   username?: string;
 
   @ApiProperty({ type: 'string' })
-  @MaxLength(255)
-  @MinLength(1)
   @IsString()
   @IsOptional()
   avatar?: string;

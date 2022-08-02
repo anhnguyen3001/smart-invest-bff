@@ -1,6 +1,6 @@
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsString, MaxLength, MinLength } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({ type: 'string' })
@@ -41,8 +41,6 @@ export class SignupDto {
   confirmPassword: string;
 
   @ApiProperty({ type: 'string' })
-  @MaxLength(255)
-  @MinLength(1)
   @IsString()
   username: string;
 }
