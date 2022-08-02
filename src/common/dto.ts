@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
   IsEnum,
@@ -26,7 +26,7 @@ export class RequestParamId {
 
 export const BASE_SORT_BY = ['id', 'createdAt', 'updatedAt'];
 
-export class QueryCoreDto {
+export class IAMQueryDto {
   @ApiProperty({ type: 'number', required: false })
   @Max(999)
   @Min(1)
@@ -55,6 +55,8 @@ export class QueryCoreDto {
   @IsOptional()
   orderBy?: ORDER_BY = ORDER_BY.DESC;
 }
+
+export class CoreQueryDto extends PickType(IAMQueryDto, ['page', 'pageSize']) {}
 
 export class Pagination {
   @ApiProperty({ default: 0 })

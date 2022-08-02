@@ -27,7 +27,7 @@ import {
 } from './user.dto';
 
 @ApiBearerAuth()
-@ApiTags('UserProfile')
+@ApiTags('User Profile')
 @Controller({
   path: 'me',
   version: configService.getValue('API_VERSION'),

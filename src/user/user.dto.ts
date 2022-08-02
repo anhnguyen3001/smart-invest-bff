@@ -13,7 +13,7 @@ import {
 import {
   BaseEntityDto,
   BASE_SORT_BY,
-  QueryCoreDto,
+  IAMQueryDto,
   ResponseWithPagination,
 } from 'common/dto';
 import { PermissionDto } from 'permission/permission.dto';
@@ -117,7 +117,7 @@ export class UserResponseDto {
 }
 
 const USER_SORT_BY = BASE_SORT_BY;
-export class SearchUserDto extends QueryCoreDto {
+export class SearchUserDto extends IAMQueryDto {
   @ApiProperty({ enum: USER_SORT_BY, default: 'id', required: false })
   @IsIn(USER_SORT_BY)
   @IsOptional()

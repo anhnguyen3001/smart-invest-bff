@@ -4,11 +4,19 @@ import { AuthModule } from 'auth/auth.module';
 import { AppGuard } from 'common/guards/app.guard';
 import { CoreModule } from 'external/core/core.module';
 import { IAMModule } from 'external/iam/iam.module';
+import { FinancialStatementModule } from 'financial-statement/financial-statement.module';
 import { UserModule } from 'user/user.module';
 import { CompanyModule } from './company/company.module';
 
 @Module({
-  imports: [CoreModule, IAMModule, AuthModule, UserModule, CompanyModule],
+  imports: [
+    CoreModule,
+    IAMModule,
+    AuthModule,
+    UserModule,
+    CompanyModule,
+    FinancialStatementModule,
+  ],
   providers: [{ provide: APP_GUARD, useClass: AppGuard }],
 })
 export class AppModule {}
