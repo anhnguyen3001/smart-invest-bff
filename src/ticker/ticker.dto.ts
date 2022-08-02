@@ -48,7 +48,7 @@ export class TickerDto {
 
   @Expose()
   @ApiProperty({ type: 'string' })
-  name: string;
+  companyName: string;
 
   @Expose()
   @ApiProperty({ type: 'string' })
