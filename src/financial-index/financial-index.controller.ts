@@ -6,33 +6,33 @@ import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
 import { CoreService } from 'external/core/core.service';
 import {
-  GetFinancialStatementsQuery,
-  GetFinancialStatementsResponse,
-} from './financial-statement.dto';
+  GetFinancialIndexesQuery,
+  GetFinancialIndexesResponse,
+} from './financial-index.dto';
 
 @ApiBearerAuth()
-@ApiTags('Financial Statement')
+@ApiTags('Financial Index')
 @Controller({
-  path: 'financial-statements',
+  path: 'financial-indexes',
   version: configService.getValue('API_VERSION'),
 })
-export class FinancialStatementController {
+export class FinancialIndexController {
   constructor(private readonly coreService: CoreService) {}
 
   @Get()
   @ApiOperation({
-    summary: 'Get financial statements of company',
+    summary: 'Get financial indexes of company',
   })
-  @ApiOkBaseResponse(GetFinancialStatementsResponse, {
-    description: 'Get financial statements successfully',
+  @ApiOkBaseResponse(GetFinancialIndexesResponse, {
+    description: 'Get financial indexes successfully',
   })
-  async getFinancialStatements(@Query() query: GetFinancialStatementsQuery) {
+  async getFinancialIndexes(@Query() query: GetFinancialIndexesQuery) {
     const res: ServerApiResponseInterface = await this.coreService.client
-      .get(`/financial-statements`, { params: query })
+      .get(`/financial-indexes`, { params: query })
       .then((res) => res.data);
-    return getBaseResponse<GetFinancialStatementsResponse>(
+    return getBaseResponse<GetFinancialIndexesResponse>(
       res,
-      GetFinancialStatementsResponse,
+      GetFinancialIndexesResponse,
     );
   }
 }
