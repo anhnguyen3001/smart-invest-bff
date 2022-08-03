@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { CoreQueryDto, ResponseWithPagination, SortEnum } from 'common/dto';
 import { ExchangeEnum } from 'company/company.dto';
 
@@ -39,6 +39,18 @@ export class GetTickersQuery extends CoreQueryDto {
   @IsEnum(TickSortBy)
   @IsOptional()
   sortBy?: TickSortBy;
+}
+
+export class GetTickersNotInFavoriteQuery extends CoreQueryDto {
+  @ApiProperty({ type: 'string', required: false })
+  @IsString()
+  @IsOptional()
+  search?: string;
+
+  @ApiProperty({ type: 'number', required: true })
+  @IsNumber()
+  @Type(() => Number)
+  listId: number;
 }
 
 export class TickerDto {

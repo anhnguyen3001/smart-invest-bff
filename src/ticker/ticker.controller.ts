@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GetUserId } from 'common/decorators/request.decorator';
 import { ApiOkBaseResponse } from 'common/decorators/response.decorator';
 import {
   BaseResponse,
@@ -12,6 +13,7 @@ import {
   GetTickerPredictedPriceQuery,
   GetTickerPriceQuery,
   GetTickerPriceResponse,
+  GetTickersNotInFavoriteQuery,
   GetTickersQuery,
   GetTickersResponse,
 } from './ticker.dto';
@@ -37,6 +39,23 @@ export class TickerController {
   ): Promise<BaseResponse<GetTickersResponse>> {
     const res: ServerApiResponseInterface = await this.coreService.client
       .get(`/tickers`, { params: query })
+      .then((res) => res.data);
+    return getBaseResponse<GetTickersResponse>(res, GetTickersResponse);
+  }
+
+  @Get('new-favorite-tickers')
+  @ApiOperation({
+    summary: 'Get tickers not in favorite list',
+  })
+  @ApiOkBaseResponse(GetTickersResponse, {
+    description: 'Get tickers not in favorite list successfully',
+  })
+  async getTickersNotInFavorite(
+    @GetUserId() userId: number,
+    @Query() query: GetTickersNotInFavoriteQuery,
+  ): Promise<BaseResponse<GetTickersResponse>> {
+    const res: ServerApiResponseInterface = await this.coreService.client
+      .get(`/tickers`, { params: { ...query, userId } })
       .then((res) => res.data);
     return getBaseResponse<GetTickersResponse>(res, GetTickersResponse);
   }
