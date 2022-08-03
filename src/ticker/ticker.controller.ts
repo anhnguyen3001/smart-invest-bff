@@ -85,12 +85,11 @@ export class TickerController {
   async getPredictedPrice(
     @Query() query: GetTickerPredictedPriceQuery,
   ): Promise<BaseResponse<GetTickerPredictedPriceResponse>> {
-    const res: ServerApiResponseInterface = await this.coreService.client.get(
-      `/tickers/predicted-price`,
-      {
+    const res: ServerApiResponseInterface = await this.coreService.client
+      .get(`/tickers/predicted-price`, {
         params: query,
-      },
-    );
+      })
+      .then((res) => res.data);
     return getBaseResponse<GetTickerPredictedPriceResponse>(
       res,
       GetTickerPredictedPriceResponse,
