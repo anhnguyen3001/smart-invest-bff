@@ -11,6 +11,7 @@ import { configService } from 'config/config.service';
 import { CoreService } from 'external/core/core.service';
 import {
   GetTickerPredictedPriceQuery,
+  GetTickerPredictedPriceResponse,
   GetTickerPriceQuery,
   GetTickerPriceResponse,
   GetTickersNotInFavoriteQuery,
@@ -80,9 +81,20 @@ export class TickerController {
   @ApiOperation({
     summary: 'Get predicted prices',
   })
+  @ApiOkBaseResponse(GetTickerPredictedPriceResponse)
   async getPredictedPrice(
-    @Query() _: GetTickerPredictedPriceQuery,
-  ): Promise<void> {
-    await this.coreService.client.get(`/predicted-prices`, {});
+    @Query() query: GetTickerPredictedPriceQuery,
+  ): Promise<BaseResponse<GetTickerPredictedPriceResponse>> {
+    const res: ServerApiResponseInterface = await this.coreService.client.get(
+      `/tickers/predicted-price`,
+      {
+        params: query,
+      },
+    );
+    return getBaseResponse<GetTickerPredictedPriceResponse>(
+      res,
+      GetTickerPredictedPriceResponse,
+      { excludeExtraneousValues: false },
+    );
   }
 }

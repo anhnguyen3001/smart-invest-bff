@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { CoreQueryDto, ResponseWithPagination, SortEnum } from 'common/dto';
@@ -159,4 +159,11 @@ export class GetTickerPredictedPriceQuery {
   @ApiProperty({ type: 'string' })
   @IsString()
   symbol: string;
+}
+
+export class GetTickerPredictedPriceResponse {
+  @Expose()
+  @ApiResponseProperty({ type: [Number] })
+  @Type(() => Number)
+  tickerPrices: number[];
 }
