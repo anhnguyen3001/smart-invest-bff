@@ -62,18 +62,17 @@ export class TickerController {
 
   @Get('price')
   @ApiOperation({
-    summary: 'Add favorite ticker',
+    summary: 'Get ticker prices ',
   })
   @ApiOkBaseResponse(GetTickerPriceResponse, {
     description: 'Get ticker prices successfully',
   })
-  async addTicker(
+  async getTickerPrice(
     @Query() query: GetTickerPriceQuery,
   ): Promise<BaseResponse<GetTickerPriceResponse>> {
     const res: ServerApiResponseInterface = await this.coreService.client
-      .get(`/tickers`, { params: query })
+      .get(`/tickers/price`, { params: query })
       .then((res) => res.data);
-
     return getBaseResponse<GetTickerPriceResponse>(res, GetTickerPriceResponse);
   }
 
