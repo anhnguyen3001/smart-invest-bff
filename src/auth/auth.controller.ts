@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -22,6 +23,7 @@ import {
 import { OtpTypeEnum } from 'common/types/entity.type';
 import { getBaseResponse } from 'common/utils/response';
 import { configService } from 'config/config.service';
+import { Request } from 'express';
 import { IAMService } from 'external/iam/iam.service';
 import {
   ForgetPasswordDto,
@@ -51,9 +53,16 @@ export class AuthController {
   @ApiOkBaseResponse(TokenResult, {
     description: 'Login successfully',
   })
-  async login(@Body() loginDto: LoginDto): Promise<BaseResponse<TokenResult>> {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Req() request: Request,
+  ): Promise<BaseResponse<TokenResult>> {
     const res: ServerApiResponseInterface = await this.iamService.client
-      .post('/auth/login', loginDto)
+      .post('/auth/login', {
+        ...loginDto,
+        path: `client/${request.url}`,
+        method: request.method,
+      })
       .then((res) => res.data);
     return getBaseResponse<TokenResult>(res, TokenResult);
   }
