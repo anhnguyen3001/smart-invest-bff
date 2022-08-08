@@ -60,7 +60,7 @@ export class AuthController {
     const res: ServerApiResponseInterface = await this.iamService.client
       .post('/auth/login', {
         ...loginDto,
-        path: `client/${request.url}`,
+        path: `${configService.getValue('SERVICE')}${request.url}`,
         method: request.method,
       })
       .then((res) => res.data);
