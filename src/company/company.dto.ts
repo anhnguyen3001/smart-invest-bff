@@ -83,4 +83,20 @@ export class CompanyDto {
   @Expose()
   @ApiProperty({ type: 'number' })
   lastPriceChange: number;
+
+  @Expose()
+  @ApiProperty({ type: 'number' })
+  lastOpenPrice: number;
+
+  @Expose()
+  @ApiProperty({ type: 'number' })
+  lastMinPrice: number;
+
+  @Expose()
+  @ApiProperty({ type: 'number' })
+  lastMaxPrice: number;
+
+  @Expose()
+  @ApiProperty({ type: 'string' })
+  lastDate: string;
 }

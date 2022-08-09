@@ -121,7 +121,7 @@ export class FavoriteListController {
   })
   @ApiBaseResponse(Identity, {
     status: 204,
-    description: 'Create favorite list successfully',
+    description: 'Delete favorite list successfully',
   })
   async deleteList(
     @GetUserId() id: number,
